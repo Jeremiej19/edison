@@ -3,7 +3,13 @@ extends CharacterBody2D
 
 const WHEEL_BASE = 100
 const ROTATE_SPEED = 15
-const SPEED = 500
+const ENGINE_POWER = 2000
+
+const FRICTION = -0.4
+const DRAG = -0.0005
+
+
+var acceleration = Vector2.ZERO
 
 
 func _physics_process(delta: float) -> void:
@@ -13,34 +19,43 @@ func _physics_process(delta: float) -> void:
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	#var directionH:= Input.get_axis("move_left", "move_right")
 	#var directionV := Input.get_axis("move_up", "move_down")
-
+	apply_fricion(delta)
 	calculate_rotation(delta)
-	print(get_last_slide_collision())
 	move_and_slide()
 	
 	
 func calculate_rotation(delta):
 	var turn = Input.get_axis("move_left", "move_right") * deg_to_rad(ROTATE_SPEED)
 	var transformX = get_transform().x
-	velocity = Vector2.ZERO
-	#if Input.get_action_strength("move_up"):
-		#print(transformX)
-		#velocity = transformX * SPEED
-	#elif Input.get_action_strength("move_down"):
-		#print(transformX)
-		#velocity = transformX * -SPEED
-	
 	var movement = Input.get_axis("move_down", "move_up")
-	if movement:
-		velocity = transformX * SPEED * movement
-		
 	
+	acceleration = transformX * ENGINE_POWER * movement
+	velocity += acceleration * delta
+	print(velocity)
 	var rear_wheel = position - transformX * WHEEL_BASE/2.0
 	var front_wheel = position + transformX * WHEEL_BASE/2.0
-	rear_wheel += velocity * delta
-	front_wheel += velocity.rotated(turn) * delta
-	var new_heading = (front_wheel - rear_wheel).normalized()
-
+	prints(rear_wheel,front_wheel)
+	var direction = velocity * delta
+	rear_wheel += direction
+	front_wheel += direction.rotated(turn)
+	prints(rear_wheel,front_wheel)
+	var new_heading = (front_wheel - rear_wheel).normalized() 
+	print(new_heading)
 	rotation = new_heading.angle()
-	velocity = new_heading * velocity.length() * movement
+	velocity = new_heading * velocity.length()
+	
+	print(velocity)
+	print(direction)
+	print()
+	
+func apply_fricion(delta):
+	if abs(velocity.length()) < 15:
+		velocity = Vector2.ZERO
+	var friction_force = velocity * FRICTION
+	var drag_force = velocity * velocity.length() * DRAG
+	velocity += (friction_force + drag_force) * delta
+	
+func positive_sign(x :int):
+	if x < 0: return -1
+	return 1
 	
