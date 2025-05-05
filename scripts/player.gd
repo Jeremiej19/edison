@@ -35,14 +35,18 @@ func calculate_rotation(delta):
 	var rear_wheel = position - transformX * WHEEL_BASE/2.0
 	var front_wheel = position + transformX * WHEEL_BASE/2.0
 	prints(rear_wheel,front_wheel)
-	var direction = velocity * delta
-	rear_wheel += direction
-	front_wheel += direction.rotated(turn)
+	
+	rear_wheel += velocity * delta
+	front_wheel += velocity.rotated(turn)  * delta
 	prints(rear_wheel,front_wheel)
 	var new_heading = (front_wheel - rear_wheel).normalized() 
 	print(new_heading)
+	var direction = new_heading.dot(velocity.normalized())
+	if direction > 0:
+		velocity = new_heading * velocity.length()
+	else:
+		velocity = -new_heading * velocity.length() * 0.977 # TODO: a chyba bez tego
 	rotation = new_heading.angle()
-	velocity = new_heading * velocity.length()
 	
 	print(velocity)
 	print(direction)
