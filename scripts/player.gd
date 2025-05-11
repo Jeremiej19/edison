@@ -31,16 +31,20 @@ func calculate_rotation(delta):
 	
 	acceleration = transformX * ENGINE_POWER * movement
 	velocity += acceleration * delta
-	print(velocity)
+	if Logger.PLAYER_LOGGING:
+		print(velocity)
 	var rear_wheel = position - transformX * WHEEL_BASE/2.0
 	var front_wheel = position + transformX * WHEEL_BASE/2.0
-	prints(rear_wheel,front_wheel)
+	if Logger.PLAYER_LOGGING:
+		prints(rear_wheel,front_wheel)
 	
 	rear_wheel += velocity * delta
 	front_wheel += velocity.rotated(turn)  * delta
-	prints(rear_wheel,front_wheel)
+	if Logger.PLAYER_LOGGING:
+		prints(rear_wheel,front_wheel)
 	var new_heading = (front_wheel - rear_wheel).normalized() 
-	print(new_heading)
+	if Logger.PLAYER_LOGGING:
+		print(new_heading)
 	var direction = new_heading.dot(velocity.normalized())
 	if direction > 0:
 		velocity = new_heading * velocity.length()
@@ -48,9 +52,10 @@ func calculate_rotation(delta):
 		velocity = -new_heading * velocity.length() * 0.977 # TODO: a chyba bez tego
 	rotation = new_heading.angle()
 	
-	print(velocity)
-	print(direction)
-	print()
+	if Logger.PLAYER_LOGGING:
+		print(velocity)
+		print(direction)
+		print()
 	
 func apply_fricion(delta):
 	if abs(velocity.length()) < 15:
@@ -63,3 +68,6 @@ func positive_sign(x :int):
 	if x < 0: return -1
 	return 1
 	
+func _on_area_2d_body_entered(body: Node2D) -> void:
+	if body.is_in_group("Track"):
+		print("hit")
