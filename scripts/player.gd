@@ -2,11 +2,11 @@ extends CharacterBody2D
 
 
 const WHEEL_BASE = 100
-const ROTATE_SPEED = 15
-const ENGINE_POWER = 2000
+const ROTATE_SPEED = 10
+const ENGINE_POWER = 3000
 
-const FRICTION = -0.4
-const DRAG = -0.0005
+const FRICTION = -0.9
+const DRAG = -0.0000001
 
 
 var acceleration = Vector2.ZERO
