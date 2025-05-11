@@ -1,9 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://17tenvnwbdmn"]
+[gd_scene load_steps=10 format=3 uid="uid://17tenvnwbdmn"]
 
 [ext_resource type="Texture2D" uid="uid://bwvhgleqcpfy" path="res://assets/brhu.png" id="1_lbhrr"]
 [ext_resource type="PackedScene" uid="uid://buqpvp1fgp4qn" path="res://scenes/player.tscn" id="1_uwrxv"]
 [ext_resource type="Script" uid="uid://ci7ejn6qbrw1e" path="res://scripts/ray_cast_2d.gd" id="2_lbhrr"]
 [ext_resource type="Script" uid="uid://f500paijhrfx" path="res://scripts/logger.gd" id="3_lnu2h"]
+
+[sub_resource type="GDScript" id="GDScript_lbhrr"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_uwrxv"]
 distance = -3722.0
@@ -21,6 +23,7 @@ normal = Vector2(-1, 0)
 distance = -5405.0
 
 [node name="Game" type="Node2D"]
+script = SubResource("GDScript_lbhrr")
 
 [node name="Track" type="StaticBody2D" parent="." groups=["Track"]]
 position = Vector2(-2352, -223)
@@ -46,13 +49,18 @@ position = Vector2(-220, -125)
 scale = Vector2(0.3, 0.3)
 
 [node name="RayCast2D" type="RayCast2D" parent="Player"]
-visible = false
 position = Vector2(216, -4)
 scale = Vector2(2, 2)
 target_position = Vector2(10000, 0)
 script = ExtResource("2_lbhrr")
 
+[node name="Camera2D" type="Camera2D" parent="Player"]
+zoom = Vector2(0.8, 0.8)
+position_smoothing_enabled = true
+rotation_smoothing_enabled = true
+
 [node name="Camera2D" type="Camera2D" parent="."]
+visible = false
 position = Vector2(911, 271)
 zoom = Vector2(0.15, 0.15)
 
