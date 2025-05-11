@@ -2,8 +2,8 @@ extends CharacterBody2D
 
 
 const WHEEL_BASE = 100
-const ROTATE_SPEED = 10
-const ENGINE_POWER = 3000
+const ROTATE_SPEED = 15
+const ENGINE_POWER = 4000
 
 const FRICTION = -0.9
 const DRAG = -0.0000001
@@ -25,14 +25,17 @@ func _physics_process(delta: float) -> void:
 	
 	
 func calculate_rotation(delta):
-	var turn = Input.get_axis("move_left", "move_right") * deg_to_rad(ROTATE_SPEED)
+	#var turn = Input.get_axis("move_left", "move_right") * deg_to_rad(ROTATE_SPEED)
+	#var turn = Input.get_axis("move_left", "move_right") * (deg_to_rad(ROTATE_SPEED) if velocity.length() > 100 else deg_to_rad(ROTATE_SPEED/2))
+	var turnDeg = ROTATE_SPEED if velocity.length() < 400 else ROTATE_SPEED * 400/velocity.length()
+	var turn = Input.get_axis("move_left", "move_right") * (deg_to_rad(turnDeg))
 	var transformX = get_transform().x
 	var movement = Input.get_axis("move_down", "move_up")
 	
 	acceleration = transformX * ENGINE_POWER * movement
 	velocity += acceleration * delta
 	if Logger.PLAYER_LOGGING:
-		print(velocity)
+		print(velocity.length())
 	var rear_wheel = position - transformX * WHEEL_BASE/2.0
 	var front_wheel = position + transformX * WHEEL_BASE/2.0
 	if Logger.PLAYER_LOGGING:
