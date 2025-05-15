@@ -10,12 +10,4 @@ script = ExtResource("1_vxyoy")
 [node name="Game" parent="." instance=ExtResource("2_n7qj4")]
 
 [node name="AI" type="Node2D" parent="."]
-unique_name_in_owner = true
 script = ExtResource("3_n7qj4")
-state_size = 4
-action_size = 4
-learning_rate = 0.1
-discount_factor = 0.95
-exploration_rate = 1.0
-exploration_decay = 0.995
-min_exploration_rate = 0.01

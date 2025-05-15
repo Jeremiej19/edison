@@ -18,6 +18,10 @@ var acceleration = Vector2.ZERO
 @onready var ray_3 = $Right
 var directionH = 0
 var directionV = 0
+var reward = 0
+
+signal hit_track
+signal hit_gate
 
 func move(delta: float, directionH: int, directionV: int) -> void:
 	apply_fricion(delta)
@@ -30,6 +34,9 @@ func get_observation() -> Array:
 	var ray_3_dist = ray_3.get_distance()
 	return [ray_1_dist, ray_2_dist, ray_3_dist, velocity]
 
+func get_reward() -> int:
+	return reward
+
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
 	# Get the input direction and handle the movement/deceleration.
@@ -39,6 +46,7 @@ func _physics_process(delta: float) -> void:
 		directionV = Input.get_axis("move_down", "move_up")
 		apply_fricion(delta)
 		calculate_rotation(delta, directionH, directionV)
+		print(velocity.length())
 		move_and_slide()
 	
 	
@@ -92,6 +100,8 @@ func positive_sign(x :int):
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if body.is_in_group("Track"):
 		print("hit")
+		emit_signal("hit_track")  # Emit signal for AI training
 	if body.is_in_group("Gate"):
 		print("gate")
 		gateManager.advance_gate()
+		emit_signal("hit_gate")  # Emit signal for AI training

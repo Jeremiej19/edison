@@ -47,6 +47,7 @@ polygon = PackedVector2Array(1566.2, -257.19, 1905.56, -446.393, 2137.04, -571.8
 
 [node name="Player" parent="." node_paths=PackedStringArray("gateManager") instance=ExtResource("1_uwrxv")]
 position = Vector2(-220, -125)
+rotation = -0.670206
 scale = Vector2(0.3, 0.3)
 gateManager = NodePath("../GateManager")
 
@@ -102,34 +103,51 @@ metadata/_custom_type_script = "uid://dl0tynqf6wh7s"
 position = Vector2(-104, -195)
 
 [node name="G2" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(211, -416)
+position = Vector2(29, -290)
 
 [node name="G3" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(538, -618)
+position = Vector2(171, -386)
 
 [node name="G4" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(1080, -917)
+position = Vector2(315, -484)
 
 [node name="G5" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(1872, -1298)
+position = Vector2(486, -576)
 rotation = 0.178024
 
 [node name="G6" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(2379, -1530)
+position = Vector2(674, -679)
 rotation = 0.178024
 
 [node name="G7" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(2752, -1355)
-rotation = 1.42244
+position = Vector2(868, -777)
+rotation = 0.202458
 
 [node name="G8" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(2975, -1151)
-rotation = 1.3631
+position = Vector2(1099, -912)
+rotation = 0.0820305
 
 [node name="G9" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(3203, -915)
-rotation = 1.48178
+position = Vector2(1414, -1094)
+rotation = 0.0785398
 
 [node name="G10" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(3295, -433)
-rotation = 3.03513
+position = Vector2(1750, -1211)
+rotation = -2.88154
+
+[node name="G11" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(2228, -1447)
+
+[node name="G12" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(2504, -1523)
+rotation = 0.670206
+scale = Vector2(1, 1)
+
+[node name="G13" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(2676, -1405)
+rotation = -1.5865
+scale = Vector2(1, 1)
+
+[node name="G14" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(2911, -1185)
+rotation = -1.58825

@@ -26,3 +26,7 @@ func advance_gate():
 	current_gate_index = wrapi(current_gate_index + 1, 0, gates.size())
 	update_gates()
 	print("Activated gate: ", gates[current_gate_index].name)
+
+func reset_gates():
+	current_gate_index = 0
+	update_gates()
