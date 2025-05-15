@@ -1,11 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://17tenvnwbdmn"]
+[gd_scene load_steps=11 format=3 uid="uid://17tenvnwbdmn"]
 
 [ext_resource type="Texture2D" uid="uid://bwvhgleqcpfy" path="res://assets/brhu.png" id="1_lbhrr"]
 [ext_resource type="PackedScene" uid="uid://buqpvp1fgp4qn" path="res://scenes/player.tscn" id="1_uwrxv"]
 [ext_resource type="Script" uid="uid://ci7ejn6qbrw1e" path="res://scripts/ray_cast_2d.gd" id="2_lbhrr"]
 [ext_resource type="Script" uid="uid://f500paijhrfx" path="res://scripts/logger.gd" id="3_lnu2h"]
-
-[sub_resource type="GDScript" id="GDScript_lbhrr"]
+[ext_resource type="PackedScene" uid="uid://c4oimhxlxviek" path="res://scenes/gate.tscn" id="5_iywne"]
+[ext_resource type="Script" uid="uid://dl0tynqf6wh7s" path="res://scripts/gate_manager.gd" id="5_p57ef"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_uwrxv"]
 distance = -3722.0
@@ -23,11 +23,12 @@ normal = Vector2(-1, 0)
 distance = -5405.0
 
 [node name="Game" type="Node2D"]
-script = SubResource("GDScript_lbhrr")
 
 [node name="Track" type="StaticBody2D" parent="." groups=["Track"]]
 position = Vector2(-2352, -223)
 scale = Vector2(2.16, 1.88)
+collision_layer = 3
+collision_mask = 3
 
 [node name="Sprite2D" type="Sprite2D" parent="Track"]
 position = Vector2(1442.13, 343.085)
@@ -44,14 +45,25 @@ polygon = PackedVector2Array(1025, -74.4681, 742.13, 192.021, 706.944, 239.894, 
 scale = Vector2(1, 1.00927)
 polygon = PackedVector2Array(1566.2, -257.19, 1905.56, -446.393, 2137.04, -571.826, 2218.98, -613.988, 2247.22, -611.353, 2322.22, -534.407, 2577.31, -246.649, 2593.52, -203.96, 2569.91, -174.447, 2535.19, -163.906, 2497.69, -182.879, 2298.61, -379.988, 2263.43, -406.339, 2179.17, -398.434, 1807.41, -249.285, 1727.78, -166.541, 1681.02, -30.5677, 1681.02, 78.5273, 1716.2, 222.406, 1783.8, 307.258, 1903.24, 368.92, 2043.52, 397.907, 2242.59, 437.961, 2258.8, 464.839, 2244.91, 667.218, 2277.78, 757.867, 2336.11, 824.273, 2467.13, 874.868, 2469.44, 909.652, 2371.3, 1042.99, 2310.19, 1053.53, 2270.83, 1042.99, 2225.93, 1021.38, 2142.13, 933.368, 1933.8, 648.245, 1809.72, 531.245, 1617.59, 432.691, 1510.19, 427.42, 1428.24, 430.055, 1343.98, 451.137, 1280.56, 483.285, 1175.46, 525.975, 1128.7, 552.326, 1079.63, 571.299, 1042.13, 573.934, 995.37, 563.394, 948.611, 560.759, 862.037, 560.759, 777.778, 613.988, 684.259, 698.84, 452.315, 933.368, 555.556, 757.867, 662.963, 627.164, 721.296, 555.488, 770.833, 456.934, 826.852, 313.055, 1081.94, 75.8921, 1290.28, -78.5273)
 
-[node name="Player" parent="." instance=ExtResource("1_uwrxv")]
+[node name="Player" parent="." node_paths=PackedStringArray("gateManager") instance=ExtResource("1_uwrxv")]
 position = Vector2(-220, -125)
 scale = Vector2(0.3, 0.3)
+gateManager = NodePath("../GateManager")
 
-[node name="RayCast2D" type="RayCast2D" parent="Player"]
+[node name="Middle" type="RayCast2D" parent="Player"]
 position = Vector2(216, -4)
 scale = Vector2(2, 2)
 target_position = Vector2(10000, 0)
+script = ExtResource("2_lbhrr")
+
+[node name="Left" type="RayCast2D" parent="Player"]
+position = Vector2(190, -60)
+target_position = Vector2(10000, -10000)
+script = ExtResource("2_lbhrr")
+
+[node name="Right" type="RayCast2D" parent="Player"]
+position = Vector2(193.333, 46.6667)
+target_position = Vector2(10000, 10000)
 script = ExtResource("2_lbhrr")
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
@@ -60,8 +72,7 @@ position_smoothing_enabled = true
 rotation_smoothing_enabled = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
-visible = false
-position = Vector2(911, 271)
+position = Vector2(-220, -125)
 zoom = Vector2(0.15, 0.15)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="."]
@@ -82,3 +93,43 @@ shape = SubResource("WorldBoundaryShape2D_lbhrr")
 
 [node name="Logger" type="Node" parent="."]
 script = ExtResource("3_lnu2h")
+
+[node name="GateManager" type="Node2D" parent="."]
+script = ExtResource("5_p57ef")
+metadata/_custom_type_script = "uid://dl0tynqf6wh7s"
+
+[node name="G1" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(-104, -195)
+
+[node name="G2" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(211, -416)
+
+[node name="G3" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(538, -618)
+
+[node name="G4" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(1080, -917)
+
+[node name="G5" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(1872, -1298)
+rotation = 0.178024
+
+[node name="G6" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(2379, -1530)
+rotation = 0.178024
+
+[node name="G7" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(2752, -1355)
+rotation = 1.42244
+
+[node name="G8" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(2975, -1151)
+rotation = 1.3631
+
+[node name="G9" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(3203, -915)
+rotation = 1.48178
+
+[node name="G10" parent="GateManager" instance=ExtResource("5_iywne")]
+position = Vector2(3295, -433)
+rotation = 3.03513

@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3 uid="uid://c0w4hv4gpkctj"]
+
+[ext_resource type="Script" uid="uid://bjeno4oi881yj" path="res://ai_envornment.gd" id="1_vxyoy"]
+[ext_resource type="PackedScene" uid="uid://17tenvnwbdmn" path="res://scenes/game.tscn" id="2_n7qj4"]
+[ext_resource type="Script" path="res://scenes/AI.py" id="3_n7qj4"]
+
+[node name="AiEnvornment" type="Node2D"]
+script = ExtResource("1_vxyoy")
+
+[node name="Game" parent="." instance=ExtResource("2_n7qj4")]
+
+[node name="AI" type="Node2D" parent="."]
+script = ExtResource("3_n7qj4")
