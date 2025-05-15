@@ -46,7 +46,6 @@ func _physics_process(delta: float) -> void:
 		directionV = Input.get_axis("move_down", "move_up")
 		apply_fricion(delta)
 		calculate_rotation(delta, directionH, directionV)
-		print(velocity.length())
 		move_and_slide()
 	
 	

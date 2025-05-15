@@ -25,6 +25,8 @@ func _input(event: InputEvent) -> void:
 		learning = true
 
 func _process(delta: float) -> void:
+	if not learning:
+		var observation = player.get_observation()
 	if learning:
 		if not terminated:
 			var observation = player.get_observation()
@@ -33,7 +35,7 @@ func _process(delta: float) -> void:
 			player.move(delta, action[0], action[1])
 			var new_observation = player.get_observation()
 			%"AI".update_q_table(observation, action_idx, reward, new_observation, terminated)
-			reward -= 1
+			#reward -= 1
 		if terminated:
 			print(%"AI".exploration_rate)
 			%"AI".decay_exploration()
@@ -48,4 +50,5 @@ func _on_player_hit_gate() -> void:
 	reward += 80
 	
 func _on_player_hit_track() -> void:
+	reward -= 200
 	terminated = true

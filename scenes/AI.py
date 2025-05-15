@@ -14,8 +14,8 @@ class AI(Node2D):
 	learning_rate = 0.3
 	discount_factor = 0.90
 	exploration_rate = 1.0
-	exploration_decay = 0.998
-	min_exploration_rate = 0.01
+	exploration_decay = 0.995
+	min_exploration_rate = 0.1
 	
 	q_table = defaultdict(lambda: {0:0, 1:0, 2:0, 3:0})
 	actions = [
@@ -26,14 +26,14 @@ class AI(Node2D):
 	]
 	
 	def discretize_ray(self, ray_value):
-		buckets = [50, 100, 150, 200, 300]  # Add more if needed
+		buckets = [100, 200, 300, 450, 600]# Add more if needed
 		for i, threshold in enumerate(buckets):
 			if ray_value < threshold:
 				return i
 		return len(buckets)
 		
 	def discretize_valocity(self, valocity):
-		buckets = [50, 100, 150, 200, 300, 400, 600]  # Add more if needed
+		buckets = [100, 200, 300, 400, 500, 600]  # Add more if needed
 		for i, threshold in enumerate(buckets):
 			if valocity.length() < threshold:
 				return i
@@ -47,15 +47,13 @@ class AI(Node2D):
 		"""Convert continuous state values to discrete buckets for Q-table indexing"""
 		ray1, ray2, ray3, velocity = state
 		
-		# Discretize ray distances (0-1000) into 10 buckets
 		ray1_disc = self.discretize_ray(ray1)
 		ray2_disc = self.discretize_ray(ray2)
 		ray3_disc = self.discretize_ray(ray3)
 		
-		# Discretize velocity magnitude (0-2000) into 10 buckets
 		vel_disc = self.discretize_valocity(velocity)
 		
-		return (ray1_disc, ray2_disc, ray3_disc)
+		return (ray1_disc, ray2_disc, ray3_disc, vel_disc)
 	
 	def get_action(self, state):
 		"""Select action using epsilon-greedy policy"""
@@ -78,10 +76,7 @@ class AI(Node2D):
 		## Q-learning formula: Q(s,a) = Q(s,a) + α[r + γ·max(Q(s',a')) - Q(s,a)]
 		current_q = self.q_table[disc_state][action_idx]
 		
-		if done:
-			max_next_q = 0
-		else:
-			max_next_q = max(self.q_table[disc_next_state].values())
+		max_next_q = max(self.q_table[disc_next_state].values())			
 			
 		new_q = (1-self.learning_rate)*current_q + self.learning_rate * (reward + self.discount_factor * max_next_q)
 		

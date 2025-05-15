@@ -55,16 +55,19 @@ gateManager = NodePath("../GateManager")
 position = Vector2(216, -4)
 scale = Vector2(2, 2)
 target_position = Vector2(10000, 0)
+collision_mask = 2
 script = ExtResource("2_lbhrr")
 
 [node name="Left" type="RayCast2D" parent="Player"]
 position = Vector2(190, -60)
 target_position = Vector2(10000, -10000)
+collision_mask = 2
 script = ExtResource("2_lbhrr")
 
 [node name="Right" type="RayCast2D" parent="Player"]
 position = Vector2(193.333, 46.6667)
 target_position = Vector2(10000, 10000)
+collision_mask = 2
 script = ExtResource("2_lbhrr")
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
