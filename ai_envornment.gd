@@ -8,7 +8,11 @@ var reset_rotation: float
 var reward = 0
 var terminated = false
 var learning = false
-var attempt = 0
+var attempt = 0.0
+var attempt_int = 0
+var elapsed_time = 0.0
+var r = 1.0
+var max_attempts = 50000
 
 func _ready() -> void:
 	reset_position = player.position
@@ -29,6 +33,9 @@ func _process(delta: float) -> void:
 		var observation = player.get_observation()
 	if learning:
 		if not terminated:
+			elapsed_time += delta
+			if elapsed_time >= 60.0:
+				terminated = true
 			var observation = player.get_observation()
 			var action_idx = %"AI".get_action(observation)
 			var action = %"AI".get_godot_action(action_idx)
@@ -37,18 +44,33 @@ func _process(delta: float) -> void:
 			%"AI".update_q_table(observation, action_idx, reward, new_observation, terminated)
 			#reward -= 1
 		if terminated:
-			print(%"AI".exploration_rate)
-			%"AI".decay_exploration()
+			if attempt_int % 100 == 0:
+				%"AI".save_q_table_name("q_table.json")
+				%"AI".save_rewards()
+			if attempt_int == max_attempts:
+				%"AI".save_q_table_name("max_q_table.json")
+			if attempt_int == 300000:
+				learning = false
+			%"AI".decay_exploration_linear(r)
+			%"AI".decay_learning_rate_linear(r)
+			r = max((max_attempts - attempt) / max_attempts, 0)
+			print("r ", r)
+			%"AI".append_reward(reward)
+			
+			print(attempt, reward)
 			reward = 0
+			elapsed_time = 0.0
 			player.position = reset_position
-			player.rotation = reset_rotation + deg_to_rad(randf_range(-45.0, 45.0))
+			player.rotation = reset_rotation
 			player.velocity = Vector2(0,0)
 			gateManager.reset_gates()
 			terminated = false
+			attempt += 1
+			attempt_int += 1
+
 	
 func _on_player_hit_gate() -> void:
-	reward += 80
+	reward += 50
 	
 func _on_player_hit_track() -> void:
-	reward -= 200
 	terminated = true

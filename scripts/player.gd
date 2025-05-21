@@ -16,6 +16,8 @@ var acceleration = Vector2.ZERO
 @onready var ray_1 = $Middle
 @onready var ray_2 = $Left
 @onready var ray_3 = $Right
+@onready var ray_4 = $Left90
+@onready var ray_5 = $Right90
 var directionH = 0
 var directionV = 0
 var reward = 0
@@ -32,7 +34,9 @@ func get_observation() -> Array:
 	var ray_1_dist = ray_1.get_distance()
 	var ray_2_dist = ray_2.get_distance()
 	var ray_3_dist = ray_3.get_distance()
-	return [ray_1_dist, ray_2_dist, ray_3_dist, velocity]
+	var ray_4_dist = ray_4.get_distance()
+	var ray_5_dist = ray_5.get_distance()
+	return [ray_1_dist, ray_2_dist, ray_3_dist, ray_4_dist, ray_5_dist, velocity]
 
 func get_reward() -> int:
 	return reward

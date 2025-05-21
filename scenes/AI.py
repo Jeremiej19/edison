@@ -9,13 +9,17 @@ from py4godot.classes.Node2D import Node2D
 
 @gdclass
 class AI(Node2D):
-	state_size = 4
+	state_size = 5
 	action_size = 4
-	learning_rate = 0.3
-	discount_factor = 0.90
+	learning_rate = 0.8
+	learning_rate_start = 0.8
+	discount_factor = 0.8
 	exploration_rate = 1.0
-	exploration_decay = 0.995
-	min_exploration_rate = 0.1
+	exploration_rate_start = 1
+	exploration_decay = 0.998
+	min_exploration_rate = 0.05
+	min_learning_rate = 0.05
+	reward = []
 	
 	q_table = defaultdict(lambda: {0:0, 1:0, 2:0, 3:0})
 	actions = [
@@ -33,7 +37,7 @@ class AI(Node2D):
 		return len(buckets)
 		
 	def discretize_valocity(self, valocity):
-		buckets = [100, 200, 300, 400, 500, 600]  # Add more if needed
+		buckets = [100, 200, 300, 400, 500]  # Add more if needed
 		for i, threshold in enumerate(buckets):
 			if valocity.length() < threshold:
 				return i
@@ -45,19 +49,21 @@ class AI(Node2D):
 	
 	def discretize_state(self, state):
 		"""Convert continuous state values to discrete buckets for Q-table indexing"""
-		ray1, ray2, ray3, velocity = state
+		ray1, ray2, ray3, ray4, ray5, velocity = state
 		
 		ray1_disc = self.discretize_ray(ray1)
 		ray2_disc = self.discretize_ray(ray2)
 		ray3_disc = self.discretize_ray(ray3)
+		ray4_disc = self.discretize_ray(ray4)
+		ray5_disc = self.discretize_ray(ray5)	
 		
 		vel_disc = self.discretize_valocity(velocity)
 		
-		return (ray1_disc, ray2_disc, ray3_disc, vel_disc)
+		return (ray1_disc, ray2_disc, ray3_disc, ray4_disc, ray5_disc)
 	
 	def get_action(self, state):
 		"""Select action using epsilon-greedy policy"""
-		disc_state = self.discretize_state(state)
+		disc_state = str(self.discretize_state(state))
 		
 		# Exploration (random action)
 		if random.random() < self.exploration_rate:
@@ -70,8 +76,8 @@ class AI(Node2D):
 	
 	def update_q_table(self, state, action_idx, reward, next_state, done):
 		"""Update Q-table using the Q-learning formula"""
-		disc_state = self.discretize_state(state)
-		disc_next_state = self.discretize_state(next_state)
+		disc_state = str(self.discretize_state(state))
+		disc_next_state = str(self.discretize_state(next_state))
 		
 		## Q-learning formula: Q(s,a) = Q(s,a) + α[r + γ·max(Q(s',a')) - Q(s,a)]
 		current_q = self.q_table[disc_state][action_idx]
@@ -87,29 +93,48 @@ class AI(Node2D):
 		"""Decay exploration rate"""
 		self.exploration_rate = max(self.min_exploration_rate, 
 								   self.exploration_rate * self.exploration_decay)
+	def decay_learning_rate(self):
+		"""Decay exploration rate"""
+		self.learning_rate = max(self.min_learning_rate, 
+								   self.learning_rate * self.exploration_decay)
+	def decay_exploration_linear(self, r):
+		"""Decay exploration rate"""
+		self.exploration_rate = (self.exploration_rate_start - self.min_exploration_rate) * r + self.min_exploration_rate
+		print(self.exploration_rate)
+	def decay_learning_rate_linear(self, r):
+		"""Decay exploration rate"""
+		self.learning_rate = (self.learning_rate_start - self.min_learning_rate) * r + self.min_learning_rate
 	
+	def append_reward(self, reward: int):
+		self.reward.append(reward)
 	#def print_q_table(self):
 		#print(self.q_table)
+	def save_rewards(self):
+		with open("rewards.json", "w") as f:
+			json.dump(self.reward, f)
 	
-	#def save_q_table(self):
-		#"""Save Q-table to a file"""
-		## Convert defaultdict to a regular dict for serialization
-		#serializable_q_table = {key: list(value) for key, value in self.q_table.items()}
-		#
-		#with open("q_table.json", "w") as f:
-			#json.dump(serializable_q_table, f, indent=2)
+	def save_q_table(self):
+		"""Save Q-table to a file"""
+		
+		with open("q_table.json", "w") as f:
+			dd = dict(self.q_table)
+			json.dump(dd, f)
+			
+	def save_q_table_name(self, name):
+		"""Save Q-table to a file"""
+		
+		with open(name, "w") as f:
+			dd = dict(self.q_table)
+			json.dump(dd, f)
 	#
-	#def load_q_table(self):
-		#"""Load Q-table from a file if it exists"""
-		#try:
-			#if os.path.exists("q_table.json"):
-				#with open("q_table.json", "r") as f:
-					#q_table_dict = json.load(f)
-					#
-				## Convert the loaded dict to a defaultdict
-				#for key, value in q_table_dict.items():
-					#self.q_table[key] = value
-				#print("Q-table loaded successfully")
-		#except Exception as e:
-			#print(f"Error loading Q-table: {e}")
-			## Keep the default initialized defaultdict if loadin
+	def load_q_table(self):
+		"""Load Q-table from a file if it exists"""
+		try:
+			if os.path.exists("q_table.json"):
+				with open("q_table.json", "r") as f:
+					self.q_table = json.load(f)
+				# Convert the loaded dict to a defaultdic
+				print("Q-table loaded successfully")
+		except Exception as e:
+			print(f"Error loading Q-table: {e}")
+			# Keep the default initialized defaultdict if loadin
