@@ -137,4 +137,4 @@ class AI(Node2D):
 				print("Q-table loaded successfully")
 		except Exception as e:
 			print(f"Error loading Q-table: {e}")
-			# Keep the default initialized defaultdict if loadin
+			# Keep the default initialized defaultdict if l

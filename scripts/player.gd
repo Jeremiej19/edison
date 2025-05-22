@@ -13,6 +13,8 @@ var acceleration = Vector2.ZERO
 
 @export var gateManager: GameManager
 @export var inputDisabled: bool
+@export var H: int
+@export var V: int
 @onready var ray_1 = $Middle
 @onready var ray_2 = $Left
 @onready var ray_3 = $Right
@@ -48,6 +50,9 @@ func _physics_process(delta: float) -> void:
 	if not inputDisabled:
 		directionH = Input.get_axis("move_left", "move_right")
 		directionV = Input.get_axis("move_down", "move_up")
+	else:
+		directionH = H
+		directionV = V
 		apply_fricion(delta)
 		calculate_rotation(delta, directionH, directionV)
 		move_and_slide()
