@@ -12,9 +12,11 @@ var attempt = 0.0
 var attempt_int = 0
 var elapsed_time = 0.0
 var r = 1.0
-var max_attempts = 50000
+var max_attempts = 500
 var sum_delta = 0
 var prev_action = Vector2.ZERO
+
+const MOVE_DELTA = 0.3
 
 func _ready() -> void:
 	reset_position = player.position
@@ -33,18 +35,19 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if not learning:
 		var observation = player.get_observation()
-
+		print(observation)
 	if learning:
 		if terminated:
 			reset()
 			return
 		sum_delta += delta
 		#prints(delta, sum_delta)
-		if sum_delta < 0.2:
+		if sum_delta < MOVE_DELTA / player.SCALE:
 			#player.move(delta, prev_action[0], prev_action[1])
 			player.H = prev_action[0]
 			player.V = prev_action[1]
 			return
+		reward -= 1
 		sum_delta = 0
 		elapsed_time += delta
 		if elapsed_time >= 60.0:
@@ -63,7 +66,7 @@ func _process(delta: float) -> void:
 
 
 func reset():
-	if attempt_int % 100 == 0:
+	if attempt_int % 50 == 0:
 		%"AI".save_q_table_name("q_table.json")
 		%"AI".save_rewards()
 	if attempt_int == max_attempts:
@@ -76,12 +79,13 @@ func reset():
 	print("r ", r)
 	%"AI".append_reward(reward)
 	
-	print(attempt, reward)
+	prints(attempt, reward)
+	print()
 	reward = 0
 	elapsed_time = 0.0
 	player.position = reset_position
 	player.rotation = reset_rotation
-	player.velocity = Vector2(0,0)
+	player.velocity = Vector2(100,100)
 	gateManager.reset_gates()
 	terminated = false
 	attempt += 1
@@ -89,7 +93,7 @@ func reset():
 
 	
 func _on_player_hit_gate() -> void:
-	reward += 50
+	reward += 30
 	
 func _on_player_hit_track() -> void:
 	terminated = true

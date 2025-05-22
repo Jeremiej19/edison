@@ -9,7 +9,7 @@ from py4godot.classes.Node2D import Node2D
 
 @gdclass
 class AI(Node2D):
-	state_size = 5
+	state_size = 6
 	action_size = 4
 	learning_rate = 0.8
 	learning_rate_start = 0.8
@@ -21,25 +21,28 @@ class AI(Node2D):
 	min_learning_rate = 0.05
 	reward = []
 	
-	q_table = defaultdict(lambda: {0:0, 1:0, 2:0, 3:0})
+	q_table = defaultdict(lambda: {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0})
 	actions = [
 		[-1, 0],  # Turn left
 		[0, 0],   # No action
 		[1, 0],   # Turn right
 		[0, 1],   # Accelerate
+		[1, 1],   # Accelerate
+		[-1, 1],   # Accelerate
+		[0, -1],   # STOpping
 	]
 	
-	def discretize_ray(self, ray_value):
-		buckets = [100, 200, 300, 450, 600]# Add more if needed
+	def discretize_ray(self, ray_value, buckets):
 		for i, threshold in enumerate(buckets):
 			if ray_value < threshold:
 				return i
 		return len(buckets)
 		
+		
 	def discretize_valocity(self, valocity):
-		buckets = [100, 200, 300, 400, 500]  # Add more if needed
+		buckets = [100, 300, 600, 1000]  # Add more if needed
 		for i, threshold in enumerate(buckets):
-			if valocity.length() < threshold:
+			if valocity < threshold:
 				return i
 		return len(buckets)
 	
@@ -50,16 +53,18 @@ class AI(Node2D):
 	def discretize_state(self, state):
 		"""Convert continuous state values to discrete buckets for Q-table indexing"""
 		ray1, ray2, ray3, ray4, ray5, velocity = state
-		
-		ray1_disc = self.discretize_ray(ray1)
-		ray2_disc = self.discretize_ray(ray2)
-		ray3_disc = self.discretize_ray(ray3)
-		ray4_disc = self.discretize_ray(ray4)
-		ray5_disc = self.discretize_ray(ray5)	
+		buckets_angle = [60, 120]
+		buckets_side = [30, 70]
+		buckets_main = [90, 200, 400, 700]
+		ray1_disc = self.discretize_ray(ray1,buckets_main)
+		ray2_disc = self.discretize_ray(ray2, buckets_angle)
+		ray3_disc = self.discretize_ray(ray3, buckets_angle)
+		ray4_disc = self.discretize_ray(ray4, buckets_side)
+		ray5_disc = self.discretize_ray(ray5, buckets_side)	
 		
 		vel_disc = self.discretize_valocity(velocity)
 		
-		return (ray1_disc, ray2_disc, ray3_disc, ray4_disc, ray5_disc)
+		return (ray1_disc, ray2_disc, ray3_disc, ray4_disc, ray5_disc, vel_disc)
 	
 	def get_action(self, state):
 		"""Select action using epsilon-greedy policy"""
@@ -67,7 +72,12 @@ class AI(Node2D):
 		
 		# Exploration (random action)
 		if random.random() < self.exploration_rate:
-			action_idx = random.randrange(self.action_size)
+			action_idx = random.randrange(self.actions.__len__())
+			if action_idx > 5:
+				 action_idx = random.randrange(self.actions.__len__())
+			#print("action_idxAAA")
+			#action_idx = random.choices(list(range(9)), weights = [2]*5 + [1]*4)
+			#print(action_idx)
 		# Exploitation (best known action)
 		else:
 			action_idx = max(self.q_table[disc_state], key=self.q_table[disc_state].get)
@@ -100,7 +110,8 @@ class AI(Node2D):
 	def decay_exploration_linear(self, r):
 		"""Decay exploration rate"""
 		self.exploration_rate = (self.exploration_rate_start - self.min_exploration_rate) * r + self.min_exploration_rate
-		print(self.exploration_rate)
+		#print(self.exploration_rate)
+		
 	def decay_learning_rate_linear(self, r):
 		"""Decay exploration rate"""
 		self.learning_rate = (self.learning_rate_start - self.min_learning_rate) * r + self.min_learning_rate
@@ -137,4 +148,4 @@ class AI(Node2D):
 				print("Q-table loaded successfully")
 		except Exception as e:
 			print(f"Error loading Q-table: {e}")
-			# Keep the default initialized defaultdict if l
+			# Keep the default initialized defaultdict

@@ -284,10 +284,6 @@ rotation = -2.47313
 position = Vector2(2492, 1880)
 rotation = -1.9059
 
-[node name="G48" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(1864, 2092)
-rotation = -4.53262
-
 [node name="G49" parent="GateManager" instance=ExtResource("5_iywne")]
 position = Vector2(2293, 1783)
 rotation = -4.53262

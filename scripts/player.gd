@@ -2,19 +2,20 @@ extends CharacterBody2D
 class_name Player
 
 const WHEEL_BASE = 100
-const ROTATE_SPEED = 15
+const ROTATE_SPEED = 12
 const ENGINE_POWER = 4000
 
 const FRICTION = -0.9
 const DRAG = -0.0000001
+const SCALE = 10.0
 
 
 var acceleration = Vector2.ZERO
 
 @export var gateManager: GameManager
 @export var inputDisabled: bool
-@export var H: int
-@export var V: int
+var H: int
+var V: int
 @onready var ray_1 = $Middle
 @onready var ray_2 = $Left
 @onready var ray_3 = $Right
@@ -23,6 +24,8 @@ var acceleration = Vector2.ZERO
 var directionH = 0
 var directionV = 0
 var reward = 0
+
+var cur_direction = 1
 
 signal hit_track
 signal hit_gate
@@ -38,7 +41,7 @@ func get_observation() -> Array:
 	var ray_3_dist = ray_3.get_distance()
 	var ray_4_dist = ray_4.get_distance()
 	var ray_5_dist = ray_5.get_distance()
-	return [ray_1_dist, ray_2_dist, ray_3_dist, ray_4_dist, ray_5_dist, velocity]
+	return [ray_1_dist, ray_2_dist, ray_3_dist, ray_4_dist, ray_5_dist, velocity.length()*cur_direction/SCALE]
 
 func get_reward() -> int:
 	return reward
@@ -53,20 +56,22 @@ func _physics_process(delta: float) -> void:
 	else:
 		directionH = H
 		directionV = V
-		apply_fricion(delta)
-		calculate_rotation(delta, directionH, directionV)
-		move_and_slide()
+	apply_fricion(delta)
+	calculate_rotation(delta, directionH, directionV)
+	move_and_slide()
 	
 	
 func calculate_rotation(delta, directionH, directionV):
+	delta *= SCALE
 	#var turn = Input.get_axis("move_left", "move_right") * deg_to_rad(ROTATE_SPEED)
 	#var turn = Input.get_axis("move_left", "move_right") * (deg_to_rad(ROTATE_SPEED) if velocity.length() > 100 else deg_to_rad(ROTATE_SPEED/2))
-	var turnDeg = ROTATE_SPEED if velocity.length() < 400 else ROTATE_SPEED * 400/velocity.length()
+	var turnDeg = ROTATE_SPEED 
+	turnDeg /= SCALE
 	var turn = directionH* (deg_to_rad(turnDeg))
 	var transformX = get_transform().x
 	var movement = directionV
 	
-	acceleration = transformX * ENGINE_POWER * movement
+	acceleration = transformX * ENGINE_POWER * movement 
 	velocity += acceleration * delta
 	if Logger.PLAYER_LOGGING:
 		print(velocity.length())
@@ -75,7 +80,7 @@ func calculate_rotation(delta, directionH, directionV):
 	if Logger.PLAYER_LOGGING:
 		prints(rear_wheel,front_wheel)
 	
-	rear_wheel += velocity * delta
+	rear_wheel += velocity * delta 
 	front_wheel += velocity.rotated(turn)  * delta
 	if Logger.PLAYER_LOGGING:
 		prints(rear_wheel,front_wheel)
@@ -84,8 +89,10 @@ func calculate_rotation(delta, directionH, directionV):
 		print(new_heading)
 	var direction = new_heading.dot(velocity.normalized())
 	if direction > 0:
+		cur_direction = 1
 		velocity = new_heading * velocity.length()
 	else:
+		cur_direction = -1
 		velocity = -new_heading * velocity.length() * 0.977 # TODO: a chyba bez tego
 	rotation = new_heading.angle()
 	
@@ -107,9 +114,9 @@ func positive_sign(x :int):
 	
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if body.is_in_group("Track"):
-		print("hit")
+		#print("hit")
 		emit_signal("hit_track")  # Emit signal for AI training
 	if body.is_in_group("Gate"):
-		print("gate")
+		#print("gate")
 		gateManager.advance_gate()
 		emit_signal("hit_gate")  # Emit signal for AI training
