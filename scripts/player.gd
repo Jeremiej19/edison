@@ -1,5 +1,5 @@
 extends CharacterBody2D
-
+class_name Player
 
 const WHEEL_BASE = 100
 const ROTATE_SPEED = 15
@@ -11,26 +11,60 @@ const DRAG = -0.0000001
 
 var acceleration = Vector2.ZERO
 
+@export var gateManager: GameManager
+@export var inputDisabled: bool
+@export var H: int
+@export var V: int
+@onready var ray_1 = $Middle
+@onready var ray_2 = $Left
+@onready var ray_3 = $Right
+@onready var ray_4 = $Left90
+@onready var ray_5 = $Right90
+var directionH = 0
+var directionV = 0
+var reward = 0
+
+signal hit_track
+signal hit_gate
+
+func move(delta: float, directionH: int, directionV: int) -> void:
+	apply_fricion(delta)
+	calculate_rotation(delta, directionH, directionV)
+	move_and_slide()
+	
+func get_observation() -> Array:
+	var ray_1_dist = ray_1.get_distance()
+	var ray_2_dist = ray_2.get_distance()
+	var ray_3_dist = ray_3.get_distance()
+	var ray_4_dist = ray_4.get_distance()
+	var ray_5_dist = ray_5.get_distance()
+	return [ray_1_dist, ray_2_dist, ray_3_dist, ray_4_dist, ray_5_dist, velocity]
+
+func get_reward() -> int:
+	return reward
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
-
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
-	#var directionH:= Input.get_axis("move_left", "move_right")
-	#var directionV := Input.get_axis("move_up", "move_down")
-	apply_fricion(delta)
-	calculate_rotation(delta)
-	move_and_slide()
+	if not inputDisabled:
+		directionH = Input.get_axis("move_left", "move_right")
+		directionV = Input.get_axis("move_down", "move_up")
+	else:
+		directionH = H
+		directionV = V
+		apply_fricion(delta)
+		calculate_rotation(delta, directionH, directionV)
+		move_and_slide()
 	
 	
-func calculate_rotation(delta):
+func calculate_rotation(delta, directionH, directionV):
 	#var turn = Input.get_axis("move_left", "move_right") * deg_to_rad(ROTATE_SPEED)
 	#var turn = Input.get_axis("move_left", "move_right") * (deg_to_rad(ROTATE_SPEED) if velocity.length() > 100 else deg_to_rad(ROTATE_SPEED/2))
 	var turnDeg = ROTATE_SPEED if velocity.length() < 400 else ROTATE_SPEED * 400/velocity.length()
-	var turn = Input.get_axis("move_left", "move_right") * (deg_to_rad(turnDeg))
+	var turn = directionH* (deg_to_rad(turnDeg))
 	var transformX = get_transform().x
-	var movement = Input.get_axis("move_down", "move_up")
+	var movement = directionV
 	
 	acceleration = transformX * ENGINE_POWER * movement
 	velocity += acceleration * delta
@@ -74,3 +108,8 @@ func positive_sign(x :int):
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if body.is_in_group("Track"):
 		print("hit")
+		emit_signal("hit_track")  # Emit signal for AI training
+	if body.is_in_group("Gate"):
+		print("gate")
+		gateManager.advance_gate()
+		emit_signal("hit_gate")  # Emit signal for AI training
