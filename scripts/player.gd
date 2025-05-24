@@ -9,7 +9,6 @@ const FRICTION = -0.9
 const DRAG = -0.0000001
 const SCALE = 10.0
 
-
 var acceleration = Vector2.ZERO
 
 @export var gateManager: GameManager
@@ -53,12 +52,12 @@ func _physics_process(delta: float) -> void:
 	if not inputDisabled:
 		directionH = Input.get_axis("move_left", "move_right")
 		directionV = Input.get_axis("move_down", "move_up")
-		apply_fricion(delta)
-		calculate_rotation(delta, directionH, directionV)
-		move_and_slide()
 	else:
 		directionH = H
 		directionV = V
+	apply_fricion(delta)
+	calculate_rotation(delta, directionH, directionV)
+	move_and_slide()
 
 	
 	

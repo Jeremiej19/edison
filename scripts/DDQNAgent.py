@@ -56,7 +56,6 @@ class Brain:
 		self.NbrActions = NbrActions
 		self.batch_size = batch_size
 		self.model = self.createModel()
-		
 	
 	def createModel(self):
 		model = tf.keras.Sequential()
@@ -67,13 +66,13 @@ class Brain:
 		return model
 	
 	def train(self, x, y, epoch = 1, verbose = 0):
-		self.model.fit(x, y, batch_size = self.batch_size , verbose = verbose)
+		self.model.fit(x, y, epochs=epoch, batch_size = self.batch_size , verbose = 0)
 
 	def predict(self, s):
-		return self.model.predict(s)
+		return self.model.predict(s, verbose = None)
 
 	def predictOne(self, s):
-		return self.model.predict(tf.reshape(s, [1, self.NbrStates])).flatten()
+		return self.model.predict(tf.reshape(s, [1, self.NbrStates]), verbose = None).flatten()
 	
 	def copy_weights(self, TrainNet):
 		variables1 = self.model.trainable_variables
@@ -114,22 +113,24 @@ class DDQNAgent(Node2D):
 			action = random.randrange(self.action_space.__len__())
 		else:
 			actions = self.brain_eval.predict(state)
-			action = np.argmax(actions)
+			action = self.fastest_argmax(list(actions))
 
 		return action 
+
+	def fastest_argmax(self, array):
+		array = list( array )
+		return array.index(max(array))
 
 	def learn(self):
 		if self.memory.mem_cntr > self.batch_size:
 			state, action, reward, new_state, done = self.memory.sample_buffer(self.batch_size)
-			state = list(state)
-			new_state = list(new_state)
 			action_values = np.array(self.action_space, dtype=np.int8)
 			action_indices = np.dot(action, action_values)
 
 			q_next = self.brain_target.predict(new_state)
 			q_eval = self.brain_eval.predict(new_state)
 			q_pred = self.brain_eval.predict(state)
-
+#
 			max_actions = np.argmax(q_eval, axis=1)
 
 			q_target = q_pred
@@ -137,9 +138,9 @@ class DDQNAgent(Node2D):
 			batch_index = np.arange(self.batch_size, dtype=np.int32)
 
 			q_target[batch_index, action_indices] = reward + self.gamma*q_next[batch_index, max_actions.astype(int)]*done
-
+#
 			_ = self.brain_eval.train(state, q_target)
-
+#
 			self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > self.epsilon_min else self.epsilon_min
 
 	def update_network_parameters(self):
