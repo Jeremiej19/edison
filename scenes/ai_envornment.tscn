@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://c0w4hv4gpkctj"]
+[gd_scene load_steps=5 format=3 uid="uid://c0w4hv4gpkctj"]
 
 [ext_resource type="Script" uid="uid://bjeno4oi881yj" path="res://ai_envornment.gd" id="1_vxyoy"]
 [ext_resource type="PackedScene" uid="uid://17tenvnwbdmn" path="res://scenes/game.tscn" id="2_n7qj4"]
 [ext_resource type="Script" path="res://scenes/AI.py" id="3_n7qj4"]
+[ext_resource type="Script" path="res://scripts/ai_deep.py" id="4_hhlbk"]
 
 [node name="AiEnvornment" type="Node2D"]
 script = ExtResource("1_vxyoy")
@@ -22,3 +23,6 @@ exploration_rate_start = 1
 exploration_decay = 0.995
 min_exploration_rate = 0.01
 min_learning_rate = 0.1
+
+[node name="AI_DEEP" type="Node2D" parent="."]
+script = ExtResource("4_hhlbk")
