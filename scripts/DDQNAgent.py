@@ -1,8 +1,13 @@
 from keras.layers import Dense, Activation
 from keras.models import Sequential, load_model
 from keras.optimizers import Adam
+import random
 import numpy as np
 import tensorflow as tf
+from py4godot import gdproperty, signal, private, gdclass, SignalArg
+from py4godot.classes.core import Vector2, Vector3
+from py4godot.classes.Node2D import Node2D
+
 
 class ReplayBuffer(object):
 	def __init__(self, max_size, input_shape, n_actions, discrete=False):
@@ -17,6 +22,8 @@ class ReplayBuffer(object):
 		self.terminal_memory = np.zeros(self.mem_size, dtype=np.float32)
 
 	def store_transition(self, state, action, reward, state_, done):
+		state = list(state)
+		state_ = list(state_)
 		index = self.mem_cntr % self.mem_size
 		self.state_memory[index] = state
 		self.new_state_memory[index] = state_
@@ -42,82 +49,6 @@ class ReplayBuffer(object):
 		terminal = self.terminal_memory[batch]
 
 		return states, actions, rewards, states_, terminal
-
-
-
-class DDQNAgent(object):
-	def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
-				 input_dims, epsilon_dec=0.999995,  epsilon_end=0.10,
-				 mem_size=25000, fname='ddqn_model.h5', replace_target=25):
-		self.action_space = [i for i in range(n_actions)]
-		self.n_actions = n_actions
-		self.gamma = gamma
-		self.epsilon = epsilon
-		self.epsilon_dec = epsilon_dec
-		self.epsilon_min = epsilon_end
-		self.batch_size = batch_size
-		self.model_file = fname
-		self.replace_target = replace_target
-		self.memory = ReplayBuffer(mem_size, input_dims, n_actions, discrete=True)
-	   
-		self.brain_eval = Brain(input_dims, n_actions, batch_size)
-		self.brain_target = Brain(input_dims, n_actions, batch_size)
-
-
-	def remember(self, state, action, reward, new_state, done):
-		self.memory.store_transition(state, action, reward, new_state, done)
-
-	def choose_action(self, state):
-
-		state = np.array(state)
-		state = state[np.newaxis, :]
-
-		rand = np.random.random()
-		if rand < self.epsilon:
-			action = np.random.choice(self.action_space)
-		else:
-			actions = self.brain_eval.predict(state)
-			action = np.argmax(actions)
-
-		return action
-
-	def learn(self):
-		if self.memory.mem_cntr > self.batch_size:
-			state, action, reward, new_state, done = self.memory.sample_buffer(self.batch_size)
-
-			action_values = np.array(self.action_space, dtype=np.int8)
-			action_indices = np.dot(action, action_values)
-
-			q_next = self.brain_target.predict(new_state)
-			q_eval = self.brain_eval.predict(new_state)
-			q_pred = self.brain_eval.predict(state)
-
-			max_actions = np.argmax(q_eval, axis=1)
-
-			q_target = q_pred
-
-			batch_index = np.arange(self.batch_size, dtype=np.int32)
-
-			q_target[batch_index, action_indices] = reward + self.gamma*q_next[batch_index, max_actions.astype(int)]*done
-
-			_ = self.brain_eval.train(state, q_target)
-
-			self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > self.epsilon_min else self.epsilon_min
-
-
-	def update_network_parameters(self):
-		self.brain_target.copy_weights(self.brain_eval)
-
-	def save_model(self):
-		self.brain_eval.model.save(self.model_file)
-		
-	def load_model(self):
-		self.brain_eval.model = load_model(self.model_file)
-		self.brain_target.model = load_model(self.model_file)
-	   
-		if self.epsilon == 0.0:
-			self.update_network_parameters()
-
 
 class Brain:
 	def __init__(self, NbrStates, NbrActions, batch_size = 256):
@@ -149,4 +80,77 @@ class Brain:
 		variables2 = TrainNet.model.trainable_variables
 		for v1, v2 in zip(variables1, variables2):
 			v1.assign(v2.numpy())
+			
+@gdclass
+class DDQNAgent(Node2D):
+	n_actions = 5
+	alpha = 0.0005
+	gamma = 0.99
+	epsilon = 1.00
+	epsilon_dec = 0.999995
+	epsilon_min = 0.10
+	batch_size = 512
+	model_file = 'ddqn_model.h5'
+	mem_size = 25000
+	replace_target = 25
+	input_dims = 6
+	
+	action_space = [i for i in range(n_actions)]
+
+	memory = ReplayBuffer(mem_size, input_dims, n_actions, discrete=True)
+	brain_eval = Brain(input_dims, n_actions, batch_size)
+	brain_target = Brain(input_dims, n_actions, batch_size)
+
+	def remember(self, state, action, reward, new_state, done):
+		self.memory.store_transition(state, action, reward, new_state, done)
+
+	def choose_action(self, state):
+		state = list(state)
+		state = np.array(state)
+		state = state[np.newaxis, :]
 		
+		rand = np.random.random()
+		if rand < self.epsilon:
+			action = random.randrange(self.action_space.__len__())
+		else:
+			actions = self.brain_eval.predict(state)
+			action = np.argmax(actions)
+
+		return action 
+
+	def learn(self):
+		if self.memory.mem_cntr > self.batch_size:
+			state, action, reward, new_state, done = self.memory.sample_buffer(self.batch_size)
+			state = list(state)
+			new_state = list(new_state)
+			action_values = np.array(self.action_space, dtype=np.int8)
+			action_indices = np.dot(action, action_values)
+
+			q_next = self.brain_target.predict(new_state)
+			q_eval = self.brain_eval.predict(new_state)
+			q_pred = self.brain_eval.predict(state)
+
+			max_actions = np.argmax(q_eval, axis=1)
+
+			q_target = q_pred
+
+			batch_index = np.arange(self.batch_size, dtype=np.int32)
+
+			q_target[batch_index, action_indices] = reward + self.gamma*q_next[batch_index, max_actions.astype(int)]*done
+
+			_ = self.brain_eval.train(state, q_target)
+
+			self.epsilon = self.epsilon*self.epsilon_dec if self.epsilon > self.epsilon_min else self.epsilon_min
+
+	def update_network_parameters(self):
+		self.brain_target.copy_weights(self.brain_eval)
+
+	def save_model(self):
+		self.brain_eval.model.save(self.model_file)
+		
+	def load_model(self):
+		self.brain_eval.model = load_model(self.model_file)
+		self.brain_target.model = load_model(self.model_file)
+	   
+		if self.epsilon == 0.0:
+			self.update_network_parameters()

@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://bjeno4oi881yj" path="res://ai_envornment.gd" id="1_vxyoy"]
 [ext_resource type="PackedScene" uid="uid://17tenvnwbdmn" path="res://scenes/game.tscn" id="2_n7qj4"]
-[ext_resource type="Script" path="res://scenes/AI.py" id="3_n7qj4"]
-[ext_resource type="Script" path="res://scripts/ai_deep.py" id="4_hhlbk"]
+[ext_resource type="Script" path="res://scripts/AI.py" id="3_n7qj4"]
+[ext_resource type="Script" path="res://scripts/DDQNAgent.py" id="4_hhlbk"]
 
 [node name="AiEnvornment" type="Node2D"]
 script = ExtResource("1_vxyoy")
@@ -24,5 +24,17 @@ exploration_decay = 0.995
 min_exploration_rate = 0.01
 min_learning_rate = 0.1
 
-[node name="AI_DEEP" type="Node2D" parent="."]
+[node name="DDQNAgent" type="Node2D" parent="."]
+unique_name_in_owner = true
 script = ExtResource("4_hhlbk")
+n_actions = 5
+alpha = 0.0005
+gamma = 0.99
+epsilon = 1.0
+epsilon_dec = 0.999995
+epsilon_min = 0.1
+batch_size = 512
+model_file = "ddqn_model.h5"
+mem_size = 25000
+replace_target = 25
+input_dims = 19

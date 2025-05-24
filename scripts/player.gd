@@ -53,12 +53,13 @@ func _physics_process(delta: float) -> void:
 	if not inputDisabled:
 		directionH = Input.get_axis("move_left", "move_right")
 		directionV = Input.get_axis("move_down", "move_up")
+		apply_fricion(delta)
+		calculate_rotation(delta, directionH, directionV)
+		move_and_slide()
 	else:
 		directionH = H
 		directionV = V
-	apply_fricion(delta)
-	calculate_rotation(delta, directionH, directionV)
-	move_and_slide()
+
 	
 	
 func calculate_rotation(delta, directionH, directionV):
@@ -114,9 +115,7 @@ func positive_sign(x :int):
 	
 func _on_area_2d_body_entered(body: Node2D) -> void:
 	if body.is_in_group("Track"):
-		#print("hit")
 		emit_signal("hit_track")  # Emit signal for AI training
 	if body.is_in_group("Gate"):
-		#print("gate")
 		gateManager.advance_gate()
 		emit_signal("hit_gate")  # Emit signal for AI training

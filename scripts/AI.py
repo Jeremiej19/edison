@@ -1,11 +1,12 @@
 from py4godot import gdproperty, signal, private, gdclass, SignalArg
 from py4godot.classes.core import Vector2, Vector3
+from py4godot.classes.Node2D import Node2D
 import numpy as np
 import random
 import os
 import json
 from collections import defaultdict
-from py4godot.classes.Node2D import Node2D
+
 
 @gdclass
 class AI(Node2D):
@@ -23,12 +24,10 @@ class AI(Node2D):
 	
 	q_table = defaultdict(lambda: {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0})
 	actions = [
+		[0, 0],
+		[0, 1],
 		[-1, 0],  # Turn left
-		[0, 0],   # No action
 		[1, 0],   # Turn right
-		[0, 1],   # Accelerate
-		[1, 1],   # Accelerate
-		[-1, 1],   # Accelerate
 		[0, -1],   # STOpping
 	]
 	
@@ -148,4 +147,4 @@ class AI(Node2D):
 				print("Q-table loaded successfully")
 		except Exception as e:
 			print(f"Error loading Q-table: {e}")
-			# Keep the default initialized d
+			# Keep the default ini
