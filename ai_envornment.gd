@@ -41,6 +41,16 @@ func _input(event: InputEvent) -> void:
 		testing = true
 		attempt_int = max_attempts
 		attempt = max_attempts
+		#prev_action = [0,1]
+		r = max((max_attempts - attempt) / max_attempts, 0.0)
+		print("r ", r)
+		#%"AI".decay_exploration_linear(0.0)
+		#%"AI".decay_learning_rate_linear(0.0)
+		%"AI".set_zero()
+		player.position = reset_position
+		player.rotation = reset_rotation
+		player.velocity = Vector2(400,400)
+
 
 func _process(delta: float) -> void:
 	if testing:
@@ -64,9 +74,11 @@ func _process(delta: float) -> void:
 			player.V = prev_action[1]
 			return
 		sum_delta = 0
+		observation = player.get_observation()
 		var action_idx = %"AI".get_action(observation)
 		prev_action = %"AI".get_godot_action(action_idx)
 		prev_action_idx = action_idx
+
 		return
 	if not learning:
 		observation = player.get_observation()

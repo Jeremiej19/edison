@@ -22,7 +22,7 @@ class AI(Node2D):
 	min_learning_rate = 0.05
 	reward = []
 	
-	q_table = defaultdict(lambda: {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 6:0})
+	q_table = defaultdict(lambda: {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0})
 	actions = [
 		[0, 0],
 		[0, 1],
@@ -110,12 +110,15 @@ class AI(Node2D):
 								   self.learning_rate * self.exploration_decay)
 	def decay_exploration_linear(self, r):
 		"""Decay exploration rate"""
-		self.exploration_rate = (self.exploration_rate_start - self.min_exploration_rate) * r + self.min_exploration_rate
+		self.exploration_rate = (self.exploration_rate_start - self.min_exploration_rate) * 0 + self.min_exploration_rate
 		#print(self.exploration_rate)
 		
 	def decay_learning_rate_linear(self, r):
 		"""Decay exploration rate"""
-		self.learning_rate = (self.learning_rate_start - self.min_learning_rate) * r + self.min_learning_rate
+		self.learning_rate = (self.learning_rate_start - self.min_learning_rate) * 0 + self.min_learning_rate
+		
+	def set_zero(self):
+		self.exploration_rate = 0.0
 	
 	def append_reward(self, reward: int):
 		self.reward.append(reward)
@@ -138,15 +141,24 @@ class AI(Node2D):
 		with open(name, "w") as f:
 			dd = dict(self.q_table)
 			json.dump(dd, f)
+		
 	#
+	def convert_inner_keys_to_int(self,d):
+		return {
+			outer_k: {int(inner_k): v for inner_k, v in outer_v.items()}
+			for outer_k, outer_v in d.items()
+		}
+	
 	def load_q_table(self):
 		"""Load Q-table from a file if it exists"""
 		try:
 			if os.path.exists("q_table.json"):
 				with open("q_table.json", "r") as f:
-					self.q_table = json.load(f)
+					self.q_table =  self.convert_inner_keys_to_int(json.load(f))
+					self.q_table =  defaultdict(lambda: {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0}, self.q_table )
 				# Convert the loaded dict to a defaultdic
 				print("Q-table loaded successfully")
+				print(self.q_table)
 		except Exception as e:
 			print(f"Error loading Q-table: {e}")
-			# Keep 
+			# Ke
