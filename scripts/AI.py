@@ -74,8 +74,8 @@ class AI(Node2D):
 		# Exploration (random action)
 		if random.random() < self.exploration_rate:
 			action_idx = random.randrange(self.actions.__len__())
-			if action_idx > 5:
-				 action_idx = random.randrange(self.actions.__len__())
+			#if action_idx > 5:
+				 #action_idx = random.randrange(self.actions.__len__())
 			#print("action_idxAAA")
 			#action_idx = random.choices(list(range(9)), weights = [2]*5 + [1]*4)
 			#print(action_idx)

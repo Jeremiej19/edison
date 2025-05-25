@@ -7,7 +7,7 @@ const ENGINE_POWER = 4000
 
 const FRICTION = -0.9
 const DRAG = -0.0000001
-const SCALE = 20.0
+const SCALE = 10.0
 
 
 var acceleration = Vector2.ZERO

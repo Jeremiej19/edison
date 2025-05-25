@@ -18,7 +18,7 @@ var sum_delta = 0
 var prev_action = Vector2.ZERO
 var prev_action_idx = 0
 var observation = 0
-
+var testing = false
 const MOVE_DELTA = 0.3
 
 
@@ -35,15 +35,43 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("swap"):
 		player.inputDisabled = not player.inputDisabled
 		learning = not learning
+	if event.is_action_pressed("test"):
+		%"AI".load_q_table()
+		player.inputDisabled = not player.inputDisabled
+		testing = true
+		attempt_int = max_attempts
+		attempt = max_attempts
 
 func _process(delta: float) -> void:
+	if testing:
+		if terminated:
+			print(reward)
+			reward = 0
+			elapsed_time = 0.0
+			player.position = reset_position
+			player.rotation = reset_rotation
+			player.velocity = Vector2(100,100)
+			gateManager.reset_gates()
+			sum_delta = 0
+			terminated = false
+			return
+		sum_delta += delta
+		#prints(delta, sum_delta, MOVE_DELTA / player.SCALE)
+		if sum_delta < MOVE_DELTA / player.SCALE:
+			#var act = actions.get(prev_action)
+			#player.move(delta, prev_action[0], prev_action[1])
+			player.H = prev_action[0]
+			player.V = prev_action[1]
+			return
+		sum_delta = 0
+		var action_idx = %"AI".get_action(observation)
+		prev_action = %"AI".get_godot_action(action_idx)
+		prev_action_idx = action_idx
+		return
 	if not learning:
 		observation = player.get_observation()
 		print(observation)
 	if learning:
-		if terminated:
-			reset()
-			return
 		sum_delta += delta
 		#prints(delta, sum_delta, MOVE_DELTA / player.SCALE)
 		if sum_delta < MOVE_DELTA / player.SCALE:
@@ -55,7 +83,7 @@ func _process(delta: float) -> void:
 		#player.move(delta, prev_action[0], prev_action[1])
 		
 		elapsed_time += delta
-		if elapsed_time >= 60.0:
+		if elapsed_time >= 90.0 / player.SCALE:
 			terminated = true
 		var new_observation = player.get_observation()
 
@@ -66,7 +94,7 @@ func _process(delta: float) -> void:
 		sum_delta = 0
 		
 		#%"AI".update_q_table(observation, action_idx, reward, new_observation, terminated)
-		reward -= 1
+		reward -= 0.1
 		%"AI".update_q_table(observation, prev_action_idx, reward, new_observation, terminated)
 		#%"DDQNAgent".remember(observation, prev_action_idx, reward, new_observation, terminated)
 		#%"DDQNAgent".learn()
@@ -74,6 +102,10 @@ func _process(delta: float) -> void:
 		var action_idx = %"AI".get_action(observation)
 		prev_action = %"AI".get_godot_action(action_idx)
 		prev_action_idx = action_idx
+		
+		if terminated:
+			reset()
+			return
 
 func reset():
 	if attempt_int % 50 == 0:
@@ -103,7 +135,8 @@ func reset():
 
 	
 func _on_player_hit_gate() -> void:
-	reward += 30
+	reward += 10.0
 	
 func _on_player_hit_track() -> void:
+	reward -= 100.0
 	terminated = true
