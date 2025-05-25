@@ -158,7 +158,6 @@ class AI(Node2D):
 					self.q_table =  defaultdict(lambda: {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0}, self.q_table )
 				# Convert the loaded dict to a defaultdic
 				print("Q-table loaded successfully")
-				print(self.q_table)
 		except Exception as e:
 			print(f"Error loading Q-table: {e}")
 			# Ke
