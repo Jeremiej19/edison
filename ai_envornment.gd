@@ -56,17 +56,17 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("swap"):
 		player.inputDisabled = not player.inputDisabled
 		learning = not learning
-	if event.is_action_pressed("test"):
-		%"DDQNAgent".epsilon = 0.0001
-		%"DDQNAgent".load_model()
-		self_driving = true
-		player.inputDisabled = not player.inputDisabled
-	if event.is_action_pressed("self_drive"):
-		if %"DDQNAgent".epsilon > 0.0001:	
-			last_espilon = %"DDQNAgent".epsilon
-			%"DDQNAgent".epsilon = 0.0001
-		else:
-			%"DDQNAgent".epsilon
+	#if event.is_action_pressed("test"):
+		#%"DDQNAgent".epsilon = 0.0001
+		#%"DDQNAgent".load_model()
+		#self_driving = true
+		#player.inputDisabled = not player.inputDisabled
+	#if event.is_action_pressed("self_drive"):
+		#if %"DDQNAgent".epsilon > 0.0001:	
+			#last_espilon = %"DDQNAgent".epsilon
+			#%"DDQNAgent".epsilon = 0.0001
+		#else:
+			#%"DDQNAgent".epsilon
 
 func _process(delta: float) -> void:
 	if not learning:
