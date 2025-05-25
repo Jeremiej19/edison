@@ -20,9 +20,15 @@ var V: int
 @onready var ray_3 = $Right
 @onready var ray_4 = $Left90
 @onready var ray_5 = $Right90
+@onready var ray_6 = $LeftSide
+@onready var ray_7 = $RightSide
+@onready var ray_8 = $LeftBack
+@onready var ray_9 = $RightBack
 var directionH = 0
 var directionV = 0
 var reward = 0
+
+var driving = true
 
 var cur_direction = 1
 
@@ -34,13 +40,20 @@ func move(delta: float, directionH: int, directionV: int) -> void:
 	calculate_rotation(delta, directionH, directionV)
 	move_and_slide()
 	
+func set_driving(set_value):
+	driving = set_value
+	
 func get_observation() -> Array:
 	var ray_1_dist = ray_1.get_distance()
 	var ray_2_dist = ray_2.get_distance()
 	var ray_3_dist = ray_3.get_distance()
 	var ray_4_dist = ray_4.get_distance()
 	var ray_5_dist = ray_5.get_distance()
-	return [ray_1_dist, ray_2_dist, ray_3_dist, ray_4_dist, ray_5_dist, velocity.length()*cur_direction/SCALE]
+	var ray_6_dist = ray_6.get_distance()
+	var ray_7_dist = ray_7.get_distance()
+	var ray_8_dist = ray_8.get_distance()
+	var ray_9_dist = ray_9.get_distance()
+	return [ray_1_dist, ray_2_dist, ray_3_dist, ray_4_dist, ray_5_dist, ray_6_dist, ray_7_dist, ray_8_dist, ray_9_dist, velocity.length()*cur_direction/SCALE]
 
 func get_reward() -> int:
 	return reward
@@ -58,8 +71,6 @@ func _physics_process(delta: float) -> void:
 	apply_fricion(delta)
 	calculate_rotation(delta, directionH, directionV)
 	move_and_slide()
-
-	
 	
 func calculate_rotation(delta, directionH, directionV):
 	delta *= SCALE

@@ -147,4 +147,4 @@ class AI(Node2D):
 				print("Q-table loaded successfully")
 		except Exception as e:
 			print(f"Error loading Q-table: {e}")
-			# Keep the d
+			# Keep 
