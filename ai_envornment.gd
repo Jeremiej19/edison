@@ -21,6 +21,7 @@ var prev_action_idx = 0
 var observation = 0
 var steps = 0
 var last_espilon = 0
+var score = 0
 
 const MOVE_DELTA = 0.3
 const MAX_VEL = 1300
@@ -76,6 +77,7 @@ func _process(delta: float) -> void:
 		if terminated:
 			var new_observation = player.get_observation()
 			new_observation = normalize_observation(new_observation)
+			score += reward
 			%"DDQNAgent".remember(observation, prev_action_idx, reward, new_observation, terminated)
 			reset()
 			return
@@ -108,6 +110,7 @@ func _process(delta: float) -> void:
 		steps += 1
 		%"DDQNAgent".remember(observation, prev_action_idx, reward, new_observation, terminated)
 		%"DDQNAgent".learn()
+		score += reward
 		reward = 0
 		observation = new_observation
 		var action_idx = %"DDQNAgent".choose_action(observation)
@@ -134,10 +137,13 @@ func reset():
 	#for i in range(10):
 		#%"DDQNAgent".learn()
 	#print("stop")
-	prints(attempt, %"DDQNAgent".epsilon)
+	prints(attempt, score, %"DDQNAgent".epsilon)
 	print()
+	%"DDQNAgent".add_score(score)
+	score = 0
 	if attempt_int % 10 == 0:
 		%"DDQNAgent".save_model()
+		%"DDQNAgent".save_scores()
 		print("save model")
 	reward = 0
 	elapsed_time = 0.0
@@ -196,5 +202,5 @@ func _on_player_hit_gate() -> void:
 	reward += 1
 	
 func _on_player_hit_track() -> void:
-	reward -= 1
+	reward -= 2
 	terminated = true

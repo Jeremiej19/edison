@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import torch
+import json
 import torch.nn as nn
 import torch.optim as optim
 from py4godot import gdproperty, signal, private, gdclass, SignalArg
@@ -94,13 +95,15 @@ class DDQNAgent(Node2D):
 	alpha = 0.0005
 	gamma = 0.99
 	epsilon = 1.00
-	epsilon_dec = 0.9995
+	#epsilon_dec = 0.999995
+	epsilon_dec = 0.995
 	epsilon_min = 0.10
 	batch_size = 512
 	model_file = 'ddqn_model.pt'
 	mem_size = 25000
 	replace_target = 25
 	input_dims = 10
+	scores = []
 
 	action_space = [i for i in range(n_actions)]
 
@@ -143,14 +146,25 @@ class DDQNAgent(Node2D):
 			q_target[batch_index, action_indices] = reward + self.gamma * q_next[batch_index, max_actions] * done
 
 			self.brain_eval.train_step(state, q_target)
-			self.epsilon = max(self.epsilon * self.epsilon_dec, self.epsilon_min)
+			eps = self.epsilon * self.epsilon_dec
+			if eps < self.epsilon_min:
+				self.epsilon = self.epsilon_min
+			else:
+				self.epsilon = eps
 
 	def update_network_parameters(self):
 		self.brain_target.copy_weights(self.brain_eval)
 
 	def save_model(self):
 		torch.save(self.brain_eval.state_dict(), self.model_file)
-
+	
+	def add_score(self, score):
+		self.scores.append(score)
+	
+	def save_scores(self):
+		with open("rewards.json", "w") as f:
+			json.dump(self.scores, f)
+	
 	def load_model(self):
 		self.brain_eval.load_state_dict(torch.load(self.model_file))
 		self.brain_target.load_state_dict(torch.load(self.model_file))
