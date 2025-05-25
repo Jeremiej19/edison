@@ -1,9 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://c0w4hv4gpkctj"]
+[gd_scene load_steps=4 format=3 uid="uid://c0w4hv4gpkctj"]
 
 [ext_resource type="Script" uid="uid://bjeno4oi881yj" path="res://ai_envornment.gd" id="1_vxyoy"]
 [ext_resource type="PackedScene" uid="uid://17tenvnwbdmn" path="res://scenes/game.tscn" id="2_n7qj4"]
 [ext_resource type="Script" path="res://scripts/AI.py" id="3_n7qj4"]
-[ext_resource type="Script" path="res://scripts/DDQNAgent.py" id="4_hhlbk"]
 
 [node name="AiEnvornment" type="Node2D"]
 script = ExtResource("1_vxyoy")
@@ -13,28 +12,13 @@ script = ExtResource("1_vxyoy")
 [node name="AI" type="Node2D" parent="."]
 unique_name_in_owner = true
 script = ExtResource("3_n7qj4")
-state_size = 4
+state_size = 6
 action_size = 4
-learning_rate = 0.1
+learning_rate = 0.8
 learning_rate_start = 0.8
-discount_factor = 0.95
+discount_factor = 0.8
 exploration_rate = 1.0
 exploration_rate_start = 1
-exploration_decay = 0.995
-min_exploration_rate = 0.01
-min_learning_rate = 0.1
-
-[node name="DDQNAgent" type="Node2D" parent="."]
-unique_name_in_owner = true
-script = ExtResource("4_hhlbk")
-n_actions = 5
-alpha = 0.0005
-gamma = 0.99
-epsilon = 1.0
-epsilon_dec = 0.999995
-epsilon_min = 0.1
-batch_size = 512
-model_file = "ddqn_model.h5"
-mem_size = 25000
-replace_target = 25
-input_dims = 19
+exploration_decay = 0.998
+min_exploration_rate = 0.05
+min_learning_rate = 0.05

@@ -13,7 +13,7 @@ var attempt = 0.0
 var attempt_int = 0
 var elapsed_time = 0.0
 var r = 1.0
-var max_attempts = 500
+var max_attempts = 10000
 var sum_delta = 0
 var prev_action = Vector2.ZERO
 var prev_action_idx = 0
@@ -21,13 +21,6 @@ var observation = 0
 
 const MOVE_DELTA = 0.3
 
-var actions = [
-	[0, 0],
-	[0, 1],
-	[-1, 0],  # Turn left
-	[1, 0],   # Turn right
-	[0, -1],   # STOpping
-]
 
 func _ready() -> void:
 	reset_position = player.position
@@ -52,14 +45,14 @@ func _process(delta: float) -> void:
 			reset()
 			return
 		sum_delta += delta
-		#prints(delta, sum_delta)
+		#prints(delta, sum_delta, MOVE_DELTA / player.SCALE)
 		if sum_delta < MOVE_DELTA / player.SCALE:
 			#var act = actions.get(prev_action)
-			player.move(delta, prev_action[0], prev_action[1])
-			#player.H = prev_action[0]
-			#player.V = prev_action[1]
+			#player.move(delta, prev_action[0], prev_action[1])
+			player.H = prev_action[0]
+			player.V = prev_action[1]
 			return
-		player.move(delta, prev_action[0], prev_action[1])
+		#player.move(delta, prev_action[0], prev_action[1])
 		
 		elapsed_time += delta
 		if elapsed_time >= 60.0:
@@ -73,28 +66,30 @@ func _process(delta: float) -> void:
 		sum_delta = 0
 		
 		#%"AI".update_q_table(observation, action_idx, reward, new_observation, terminated)
-		#reward -= 1
-		%"DDQNAgent".remember(observation, prev_action_idx, reward, new_observation, terminated)
-		%"DDQNAgent".learn()
+		reward -= 1
+		%"AI".update_q_table(observation, prev_action_idx, reward, new_observation, terminated)
+		#%"DDQNAgent".remember(observation, prev_action_idx, reward, new_observation, terminated)
+		#%"DDQNAgent".learn()
 		observation = new_observation
-		var action_idx = %"DDQNAgent".choose_action(observation)
-		prev_action = actions.get(action_idx)
+		var action_idx = %"AI".get_action(observation)
+		prev_action = %"AI".get_godot_action(action_idx)
 		prev_action_idx = action_idx
 
 func reset():
-	#if attempt_int % 50 == 0:
-		#%"AI".save_q_table_name("q_table.json")
-		#%"AI".save_rewards()
-	#if attempt_int == max_attempts:
-		#%"AI".save_q_table_name("max_q_table.json")
-	#if attempt_int == 300000:
-		#learning = false
-	#%"AI".decay_exploration_linear(r)
-	#%"AI".decay_learning_rate_linear(r)
-	#r = max((max_attempts - attempt) / max_attempts, 0)
-	#print("r ", r)
-	#%"AI".append_reward(reward)
-	prints(attempt)
+	if attempt_int % 50 == 0:
+		%"AI".save_q_table_name("q_table.json")
+		%"AI".save_rewards()
+	if attempt_int == max_attempts:
+		%"AI".save_q_table_name("max_q_table.json")
+	if attempt_int == 300000:
+		learning = false
+	%"AI".decay_exploration_linear(r)
+	%"AI".decay_learning_rate_linear(r)
+	r = max((max_attempts - attempt) / max_attempts, 0)
+	print("r ", r)
+	%"AI".append_reward(reward)
+	
+	prints(attempt, reward)
 	print()
 	reward = 0
 	elapsed_time = 0.0
@@ -105,9 +100,6 @@ func reset():
 	terminated = false
 	attempt += 1
 	attempt_int += 1
-	
-	if attempt_int % REPLACE_TARGET == 0 and attempt_int > REPLACE_TARGET:
-		%"DDQNAgent".update_network_parameters()
 
 	
 func _on_player_hit_gate() -> void:

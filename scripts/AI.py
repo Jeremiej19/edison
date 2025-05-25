@@ -22,10 +22,12 @@ class AI(Node2D):
 	min_learning_rate = 0.05
 	reward = []
 	
-	q_table = defaultdict(lambda: {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0})
+	q_table = defaultdict(lambda: {0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 6:0})
 	actions = [
 		[0, 0],
 		[0, 1],
+		[-1, 1],
+		[1, 1],
 		[-1, 0],  # Turn left
 		[1, 0],   # Turn right
 		[0, -1],   # STOpping
@@ -147,4 +149,4 @@ class AI(Node2D):
 				print("Q-table loaded successfully")
 		except Exception as e:
 			print(f"Error loading Q-table: {e}")
-			# Keep the default ini
+			# Keep 
