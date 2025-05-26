@@ -46,59 +46,59 @@ scale = Vector2(1, 1.00927)
 polygon = PackedVector2Array(1566.2, -257.19, 1905.56, -446.393, 2137.04, -571.826, 2218.98, -613.988, 2247.22, -611.353, 2322.22, -534.407, 2577.31, -246.649, 2593.52, -203.96, 2569.91, -174.447, 2535.19, -163.906, 2497.69, -182.879, 2298.61, -379.988, 2263.43, -406.339, 2179.17, -398.434, 1807.41, -249.285, 1727.78, -166.541, 1681.02, -30.5677, 1681.02, 78.5273, 1716.2, 222.406, 1783.8, 307.258, 1903.24, 368.92, 2043.52, 397.907, 2242.59, 437.961, 2258.8, 464.839, 2244.91, 667.218, 2277.78, 757.867, 2336.11, 824.273, 2467.13, 874.868, 2469.44, 909.652, 2371.3, 1042.99, 2310.19, 1053.53, 2270.83, 1042.99, 2225.93, 1021.38, 2142.13, 933.368, 1933.8, 648.245, 1809.72, 531.245, 1617.59, 432.691, 1510.19, 427.42, 1428.24, 430.055, 1343.98, 451.137, 1280.56, 483.285, 1175.46, 525.975, 1128.7, 552.326, 1079.63, 571.299, 1042.13, 573.934, 995.37, 563.394, 948.611, 560.759, 862.037, 560.759, 777.778, 613.988, 684.259, 698.84, 452.315, 933.368, 555.556, 757.867, 662.963, 627.164, 721.296, 555.488, 770.833, 456.934, 826.852, 313.055, 1081.94, 75.8921, 1290.28, -78.5273)
 
 [node name="Player" parent="." node_paths=PackedStringArray("gateManager") instance=ExtResource("1_uwrxv")]
-position = Vector2(641, -672)
-rotation = -0.364774
+position = Vector2(-144, 1003)
+rotation = -3.11018
 scale = Vector2(0.3, 0.3)
 gateManager = NodePath("../GateManager")
 
 [node name="Middle" type="RayCast2D" parent="Player"]
-position = Vector2(216, -4)
+position = Vector2(212.266, -4.5778)
 scale = Vector2(2, 2)
 target_position = Vector2(10000, 0)
 collision_mask = 2
 script = ExtResource("2_lbhrr")
 
 [node name="Left" type="RayCast2D" parent="Player"]
-position = Vector2(190, -60)
+position = Vector2(184.864, -54.2905)
 target_position = Vector2(10000, -10000)
 collision_mask = 2
 script = ExtResource("2_lbhrr")
 
 [node name="Right" type="RayCast2D" parent="Player"]
-position = Vector2(193.333, 46.6667)
+position = Vector2(190.125, 44.0572)
 target_position = Vector2(10000, 10000)
 collision_mask = 2
 script = ExtResource("2_lbhrr")
 
 [node name="Left90" type="RayCast2D" parent="Player"]
-position = Vector2(155.868, -67.8622)
-target_position = Vector2(0, -1000)
+position = Vector2(155.648, -61.8787)
+target_position = Vector2(0, -10000)
 script = ExtResource("2_lbhrr")
 
 [node name="Right90" type="RayCast2D" parent="Player"]
-position = Vector2(156.448, 60.1991)
+position = Vector2(156.889, 56.3424)
 target_position = Vector2(0, 10000)
 script = ExtResource("2_lbhrr")
 
 [node name="LeftSide" type="RayCast2D" parent="Player"]
-position = Vector2(-87.7574, -69.1921)
+position = Vector2(-90.1359, -62.9642)
 scale = Vector2(1, 1)
 target_position = Vector2(0, -10000)
 script = ExtResource("2_lbhrr")
 
 [node name="RightSide" type="RayCast2D" parent="Player"]
-position = Vector2(-90.0839, 58.3708)
+position = Vector2(-93.198, 57.1818)
 scale = Vector2(1, 1)
 target_position = Vector2(0, 10000)
 script = ExtResource("2_lbhrr")
 
 [node name="LeftBack" type="RayCast2D" parent="Player"]
-position = Vector2(-184.634, -49.0965)
+position = Vector2(-179.595, -43.6038)
 target_position = Vector2(-10000, -10000)
 script = ExtResource("2_lbhrr")
 
 [node name="RightBack" type="RayCast2D" parent="Player"]
-position = Vector2(-178.184, 46.1376)
+position = Vector2(-172.691, 41.0988)
 target_position = Vector2(-10000, 10000)
 script = ExtResource("2_lbhrr")
 
@@ -362,16 +362,6 @@ rotation = -6.28319
 [node name="G62" parent="GateManager" instance=ExtResource("5_iywne")]
 position = Vector2(-1265, 1682)
 rotation = -6.04233
-
-[node name="G63" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(-1397, 1795)
-rotation = -5.43146
-scale = Vector2(1.5, 1.5)
-
-[node name="G64" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(-1557, 1753)
-rotation = -4.82234
-scale = Vector2(1.7, 1.7)
 
 [node name="G65" parent="GateManager" instance=ExtResource("5_iywne")]
 position = Vector2(-1513, 1504)

@@ -22,23 +22,25 @@ var observation = 0
 var steps = 0
 var last_espilon = 0
 var score = 0
+var counter = 0
 
 const MOVE_DELTA = 0.3
 const MAX_VEL = 1300
 const MAX_DISTANCE = 1000
+const INITIAL_REWARD = 0
 
 var actions = [
 	[0, 0],
 	[0, 1],
 	[-1, 0],  # Turn left
 	[1, 0],   # Turn right
-	[0, -1],   # STOpping
+	[0, -1]
 ]
 
 func normalize_observation(observation):
 	var obs = []
 	for i in range(len(observation) - 1):
-		obs.append((MAX_DISTANCE - observation[i])/MAX_DISTANCE)
+		obs.append((MAX_DISTANCE - min(observation[i], MAX_DISTANCE))/MAX_DISTANCE)
 	obs.append(observation.get(len(observation) - 1) / MAX_VEL)
 	return obs
 
@@ -56,11 +58,15 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("swap"):
 		player.inputDisabled = not player.inputDisabled
 		learning = not learning
-	#if event.is_action_pressed("test"):
-		#%"DDQNAgent".epsilon = 0.0001
-		#%"DDQNAgent".load_model()
-		#self_driving = true
-		#player.inputDisabled = not player.inputDisabled
+		%"DDQNAgent".load_model()
+		%"DDQNAgent".epsilon_dec = 0.9995
+		%"DDQNAgent".epsilon = 0.8
+	if event.is_action_pressed("test"):
+		%"DDQNAgent".epsilon = 0
+		%"DDQNAgent".load_model()
+		learning = not learning
+		self_driving = true
+		player.inputDisabled = not player.inputDisabled
 	#if event.is_action_pressed("self_drive"):
 		#if %"DDQNAgent".epsilon > 0.0001:	
 			#last_espilon = %"DDQNAgent".epsilon
@@ -83,16 +89,21 @@ func _process(delta: float) -> void:
 			return
 		sum_delta += delta
 		#prints(delta, sum_delta)
-		if sum_delta < MOVE_DELTA / player.SCALE:
+		if sum_delta < MOVE_DELTA / player.SCALE and not self_driving:
 			#var act = actions.get(prev_action)
-			#player.move(delta, prev_action[0], prev_action[1])
-			player.H = prev_action[0]
-			player.V = prev_action[1]
+			player.move(delta, prev_action[0], prev_action[1])
+			#player.H = prev_action[0]
+			#player.V = prev_action[1]
 			return
-		#player.move(delta, prev_action[0], prev_action[1])
-		player.H = prev_action[0]
-		player.V = prev_action[1]
-		
+		player.move(delta, prev_action[0], prev_action[1])
+		#player.H = prev_action[0]
+		#player.V = prev_action[1]
+		if reward == INITIAL_REWARD:
+			counter += 1
+			if counter > 90:
+				terminated = true
+		else:
+			counter = 0
 		elapsed_time += delta
 		if elapsed_time >= 60.0:
 			terminated = true
@@ -108,17 +119,17 @@ func _process(delta: float) -> void:
 		#%"AI".update_q_table(observation, action_idx, reward, new_observation, terminated)
 		#reward -= 1
 		steps += 1
-		%"DDQNAgent".remember(observation, prev_action_idx, reward, new_observation, terminated)
-		%"DDQNAgent".learn()
+		if not self_driving:
+			%"DDQNAgent".remember(observation, prev_action_idx, reward, new_observation, terminated)
+			%"DDQNAgent".learn()
 		score += reward
-		reward = 0
+		reward = INITIAL_REWARD
 		observation = new_observation
 		var action_idx = %"DDQNAgent".choose_action(observation)
 		prev_action = actions.get(action_idx)
 		prev_action_idx = action_idx
 		observation = player.get_observation()
-	if self_driving:
-		self_driving_step(delta)
+		observation = normalize_observation(observation)
 
 func reset():
 	#if attempt_int % 50 == 0:
@@ -139,13 +150,14 @@ func reset():
 	#print("stop")
 	prints(attempt, score, %"DDQNAgent".epsilon)
 	print()
-	%"DDQNAgent".add_score(score)
-	score = 0
-	if attempt_int % 10 == 0:
-		%"DDQNAgent".save_model()
-		%"DDQNAgent".save_scores()
-		print("save model")
-	reward = 0
+	if not self_driving:
+		%"DDQNAgent".add_score(score)
+		score = 0
+		if attempt_int % 10 == 0:
+			%"DDQNAgent".save_model()
+			%"DDQNAgent".save_scores()
+			print("save model")
+	reward = INITIAL_REWARD
 	elapsed_time = 0.0
 	player.position = reset_position
 	player.rotation = reset_rotation
@@ -156,51 +168,52 @@ func reset():
 	attempt_int += 1
 	steps = 0
 	sum_delta = 0
+	counter = 0
 	
-	if attempt_int % REPLACE_TARGET == 0 and attempt_int > REPLACE_TARGET:
+	if attempt_int % REPLACE_TARGET == 0 and attempt_int > REPLACE_TARGET and not self_driving:
 		%"DDQNAgent".update_network_parameters()
 
-func self_driving_step(delta):
-	if terminated:
-		reset_clear()
-		return
-	sum_delta += delta
-		#prints(delta, sum_delta)
-	if sum_delta < MOVE_DELTA / player.SCALE:
-		#var act = actions.get(prev_action)
-		#player.move(delta, prev_action[0], prev_action[1])
-		player.H = prev_action[0]
-		player.V = prev_action[1]
-		return
-		#player.move(delta, prev_action[0], prev_action[1])
-	player.H = prev_action[0]
-	player.V = prev_action[1]
-	var new_observation = player.get_observation()
-	new_observation = normalize_observation(new_observation)
-
-	sum_delta = 0
-
-	observation = new_observation
-	var action_idx = %"DDQNAgent".choose_action(observation)
-	prev_action = actions.get(action_idx)
-	prev_action_idx = action_idx
-	observation = player.get_observation()
-
-func reset_clear():
-	reward = 0
-	player.position = reset_position
-	player.rotation = reset_rotation
-	player.velocity = Vector2(100,100)
-	gateManager.reset_gates()
-	terminated = false
-	attempt += 1
-	attempt_int += 1
-	steps = 0
-	sum_delta = 0
+#func self_driving_step(delta):
+	#if terminated:
+		#reset_clear()
+		#return
+	#sum_delta += delta
+		##prints(delta, sum_delta)
+	#if sum_delta < MOVE_DELTA / player.SCALE:
+		##var act = actions.get(prev_action)
+		##player.move(delta, prev_action[0], prev_action[1])
+		#player.H = prev_action[0]
+		#player.V = prev_action[1]
+		#return
+		##player.move(delta, prev_action[0], prev_action[1])
+	#player.H = prev_action[0]
+	#player.V = prev_action[1]
+	#var new_observation = player.get_observation()
+	#new_observation = normalize_observation(new_observation)
+#
+	#sum_delta = 0
+#
+	#observation = new_observation
+	#var action_idx = %"DDQNAgent".choose_action(observation)
+	#prev_action = actions.get(action_idx)
+	#prev_action_idx = action_idx
+	#observation = player.get_observation()
+#
+#func reset_clear():
+	#reward = 0
+	#player.position = reset_position
+	#player.rotation = reset_rotation
+	#player.velocity = Vector2(100,100)
+	#gateManager.reset_gates()
+	#terminated = false
+	#attempt += 1
+	#attempt_int += 1
+	#steps = 0
+	#sum_delta = 0
 	
 func _on_player_hit_gate() -> void:
-	reward += 1
+	reward += 2
 	
 func _on_player_hit_track() -> void:
-	reward -= 2
+	reward -= 3
 	terminated = true

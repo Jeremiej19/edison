@@ -8,7 +8,6 @@ from py4godot import gdproperty, signal, private, gdclass, SignalArg
 from py4godot.classes.core import Vector2, Vector3
 from py4godot.classes.Node2D import Node2D
 
-
 class ReplayBuffer(object):
 	def __init__(self, max_size, input_shape, n_actions, discrete=False):
 		self.mem_size = max_size
@@ -114,6 +113,10 @@ class DDQNAgent(Node2D):
 	def remember(self, state, action, reward, new_state, done):
 		state = list(state)
 		new_state = list(new_state)
+		#if reward > 0 or reward == -1:
+			#print("memory")
+			#print(f"{state} {new_state} {action} {reward} {done}")
+			#print()
 		self.memory.store_transition(state, action, reward, new_state, done)
 
 	def choose_action(self, state):
@@ -144,7 +147,7 @@ class DDQNAgent(Node2D):
 
 			batch_index = np.arange(self.batch_size, dtype=np.int32)
 			q_target[batch_index, action_indices] = reward + self.gamma * q_next[batch_index, max_actions] * done
-
+			
 			self.brain_eval.train_step(state, q_target)
 			eps = self.epsilon * self.epsilon_dec
 			if eps < self.epsilon_min:

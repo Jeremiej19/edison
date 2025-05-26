@@ -2,7 +2,8 @@ extends Node2D
 class_name GameManager
 # Array to hold all gate references
 var gates = []
-var current_gate_index = 3
+const START_INDEX = 51
+var current_gate_index = START_INDEX
 
 func _ready():
 	# Collect all gates (children that are StaticBody2D)
@@ -28,5 +29,5 @@ func advance_gate():
 	#print("Activated gate: ", gates[current_gate_index].name)
 
 func reset_gates():
-	current_gate_index = 3
+	current_gate_index = START_INDEX
 	update_gates()
