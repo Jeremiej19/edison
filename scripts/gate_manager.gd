@@ -2,7 +2,7 @@ extends Node2D
 class_name GameManager
 # Array to hold all gate references
 var gates = []
-const START_INDEX = 51
+const START_INDEX = 49
 var current_gate_index = START_INDEX
 
 func _ready():

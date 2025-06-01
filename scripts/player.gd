@@ -2,7 +2,7 @@ extends CharacterBody2D
 class_name Player
 
 const WHEEL_BASE = 100
-const ROTATE_SPEED = 12
+const ROTATE_SPEED = 10
 const ENGINE_POWER = 4000
 
 const FRICTION = -0.9

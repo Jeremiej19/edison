@@ -46,8 +46,8 @@ scale = Vector2(1, 1.00927)
 polygon = PackedVector2Array(1566.2, -257.19, 1905.56, -446.393, 2137.04, -571.826, 2218.98, -613.988, 2247.22, -611.353, 2322.22, -534.407, 2577.31, -246.649, 2593.52, -203.96, 2569.91, -174.447, 2535.19, -163.906, 2497.69, -182.879, 2298.61, -379.988, 2263.43, -406.339, 2179.17, -398.434, 1807.41, -249.285, 1727.78, -166.541, 1681.02, -30.5677, 1681.02, 78.5273, 1716.2, 222.406, 1783.8, 307.258, 1903.24, 368.92, 2043.52, 397.907, 2242.59, 437.961, 2258.8, 464.839, 2244.91, 667.218, 2277.78, 757.867, 2336.11, 824.273, 2467.13, 874.868, 2469.44, 909.652, 2371.3, 1042.99, 2310.19, 1053.53, 2270.83, 1042.99, 2225.93, 1021.38, 2142.13, 933.368, 1933.8, 648.245, 1809.72, 531.245, 1617.59, 432.691, 1510.19, 427.42, 1428.24, 430.055, 1343.98, 451.137, 1280.56, 483.285, 1175.46, 525.975, 1128.7, 552.326, 1079.63, 571.299, 1042.13, 573.934, 995.37, 563.394, 948.611, 560.759, 862.037, 560.759, 777.778, 613.988, 684.259, 698.84, 452.315, 933.368, 555.556, 757.867, 662.963, 627.164, 721.296, 555.488, 770.833, 456.934, 826.852, 313.055, 1081.94, 75.8921, 1290.28, -78.5273)
 
 [node name="Player" parent="." node_paths=PackedStringArray("gateManager") instance=ExtResource("1_uwrxv")]
-position = Vector2(-144, 1003)
-rotation = -3.11018
+position = Vector2(604, 793)
+rotation = -3.45226
 scale = Vector2(0.3, 0.3)
 gateManager = NodePath("../GateManager")
 
@@ -82,13 +82,11 @@ script = ExtResource("2_lbhrr")
 
 [node name="LeftSide" type="RayCast2D" parent="Player"]
 position = Vector2(-90.1359, -62.9642)
-scale = Vector2(1, 1)
 target_position = Vector2(0, -10000)
 script = ExtResource("2_lbhrr")
 
 [node name="RightSide" type="RayCast2D" parent="Player"]
 position = Vector2(-93.198, 57.1818)
-scale = Vector2(1, 1)
 target_position = Vector2(0, 10000)
 script = ExtResource("2_lbhrr")
 
@@ -103,7 +101,6 @@ target_position = Vector2(-10000, 10000)
 script = ExtResource("2_lbhrr")
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
-scale = Vector2(1, 1)
 zoom = Vector2(0.8, 0.8)
 position_smoothing_enabled = true
 rotation_smoothing_enabled = true
@@ -166,9 +163,9 @@ position = Vector2(2427, -1517)
 rotation = 0.670206
 
 [node name="G13" parent="GateManager" instance=ExtResource("5_iywne")]
-position = Vector2(2554, -1484)
+position = Vector2(2556, -1513)
 rotation = 0.993092
-scale = Vector2(0.7, 0.7)
+scale = Vector2(0.8, 0.8)
 
 [node name="G14" parent="GateManager" instance=ExtResource("5_iywne")]
 position = Vector2(2632, -1483)

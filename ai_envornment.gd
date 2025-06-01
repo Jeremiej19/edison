@@ -23,8 +23,9 @@ var steps = 0
 var last_espilon = 0
 var score = 0
 var counter = 0
+var counter_reset = 90
 
-const MOVE_DELTA = 0.3
+const MOVE_DELTA = 0.2
 const MAX_VEL = 1300
 const MAX_DISTANCE = 1000
 const INITIAL_REWARD = 0
@@ -59,10 +60,11 @@ func _input(event: InputEvent) -> void:
 		player.inputDisabled = not player.inputDisabled
 		learning = not learning
 		%"DDQNAgent".load_model()
-		%"DDQNAgent".epsilon_dec = 0.9995
-		%"DDQNAgent".epsilon = 0.8
+		%"DDQNAgent".epsilon_dec = 0.99995
+		%"DDQNAgent".epsilon = 0.1
 	if event.is_action_pressed("test"):
-		%"DDQNAgent".epsilon = 0
+		counter_reset = 60
+		%"DDQNAgent".epsilon = 0.03
 		%"DDQNAgent".load_model()
 		learning = not learning
 		self_driving = true
@@ -89,7 +91,7 @@ func _process(delta: float) -> void:
 			return
 		sum_delta += delta
 		#prints(delta, sum_delta)
-		if sum_delta < MOVE_DELTA / player.SCALE and not self_driving:
+		if sum_delta < MOVE_DELTA / player.SCALE:
 			#var act = actions.get(prev_action)
 			player.move(delta, prev_action[0], prev_action[1])
 			#player.H = prev_action[0]
@@ -100,7 +102,7 @@ func _process(delta: float) -> void:
 		#player.V = prev_action[1]
 		if reward == INITIAL_REWARD:
 			counter += 1
-			if counter > 90:
+			if counter > counter_reset:
 				terminated = true
 		else:
 			counter = 0
